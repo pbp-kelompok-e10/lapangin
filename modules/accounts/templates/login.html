@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Register - Lapangin</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-gray-50 w-full min-h-screen flex items-center justify-center">
+<div class="w-full max-w-md z-10 relative border border-gray-300 rounded-lg">
+    <div class="bg-white py-12 px-8 gap-5 flex flex-col rounded-lg shadow-sm">
+        <div class="flex items-center gap-[6px] justify-center">
+            <svg width="40" height="53" viewBox="0 0 40 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.65506 27.875C4.65522 36.375 14.059 46.2757 19.9051 52.25C31.1501 39.6013 36.2565 33.4097 38.03 27.875C39.9526 21.875 40.4868 17.715 38.03 11.5C34.0717 4.5 30.059 0.750559 19.9051 0C9.98728 0.990796 5.02994 4.5 1.65506 11.375C1.65506 11.375 -1.3451 19.375 1.65506 27.875Z" fill="#0062FF"/>
+                <path d="M22.8217 10.75H17.4467C15.4443 14.1217 13.9013 15.7428 10.3217 18.125V23.5C13.8004 25.2446 15.3383 26.6351 17.0717 30.125H22.8217C24.7144 26.808 26.3083 25.4097 29.8217 23.5V18.125C26.3202 15.9146 24.8234 14.2686 22.8217 10.75Z" fill="#F9F9F9"/>
+                <path d="M17.0717 24.25L15.6967 18.625L19.9467 15.5L24.1967 18.625L22.8217 24.25H17.0717Z" fill="#0062FF"/>
+                <circle cx="19.9467" cy="20.375" r="12.875" stroke="white" stroke-width="2" />
+            </svg>
+            <h1 class="text-center text-2xl font-bold text-[#0062FF]">LAPANG<span class="text-[#99FF00]">IN</span></h1>
+        </div>
+
+        <div class="    ">
+            <h3 class="text-center text-2xl font-semibold">Masuk</h3>
+            <h4 class="text-center font-medium text-[#737373]">Daftar atau masuk untuk booking lapangan</h4>
+        </div>
+
+        <div class="hidden" id="error-container"></div>
+
+        <form method="POST" id="login-form" action="" class="gap-3 flex flex-col">
+            {% csrf_token %}
+            <div class="flex flex-col mb-2">
+                <label for="username" class="mb-2 font-semibold text-[#737373]" >Username<span class="text-[#DC2626] ml-2">*</span></label>
+                <input type="text"
+                    maxlength="50"
+                    name="username"
+                    required
+                    placeholder="Type here"
+                    class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
+            </div>
+
+            <div class="flex flex-col mb-2">
+                <label for="password" class="mb-2 font-semibold text-[#737373]" >Kata Sandi<span class="text-[#DC2626] ml-2">*</span></label>
+                <input
+                    type="password"
+                    name="password"
+                    id="password1"
+                    placeholder="Type here"
+                    class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
+            </div>
+
+            <button type="submit" class="w-full bg-[#0062FF] text-sm px-3 py-3 rounded-lg text-white font-medium hover:bg-[#0054d9] transition-colors">Selanjutnya</button>
+        </form>
+        <div class="flex items-center text-center">
+            <div class="grow h-[1px] bg-[#cccccc]"></div>
+            <span class="px-6 text-[#A1A1A1] text-sm">atau</span>
+            <div class="grow h-[1px] bg-[#cccccc]"></div>
+        </div>
+    
+        <div id="messages">
+            <ul id="messages-container"></ul>
+            <p class="text-center text-[#A1A1A1]">Belum punya Akun? <a href="{% url 'accounts:register' %}" class="text-[#0062FF] font-bold border-b-2 border-[#0062FF]">Daftar</a></p>
+        </div>
+        
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const loginForm = document.getElementById("login-form");
+    const errorContainer = document.getElementById("error-container")
+    const LOGIN_API_ENDPOINT = "{% url 'accounts:login' %}"
+    
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        errorContainer.innerHTML = '';
+        const formData = new FormData(loginForm);
+
+        try {
+            const response = await fetch(LOGIN_API_ENDPOINT, {
+                method: 'POST',
+                body: formData,
+                headers: {'Accept':'application/json' },
+            })
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showToast("Login berhasil", "", "success");
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 500)
+            } else if (data.errors) {
+                errors = data.errors;
+                for (const e in errors) {
+                    errors[e].forEach(error => {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'px-4 py-3 text-sm border bg-red-50 border-red-200 text-red-700 mb-2';
+                        let fieldName = e.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        errorDiv.innerHTML = fieldName === '__all__' ? `${error.message}` : `<strong>${fieldName}:</strong> ${error.message}`;
+                        errorContainer.appendChild(errorDiv);
+                    });
+                }
+            }
+
+        } catch (error) {
+            console.error('Error: ', error);
+        }
+    })
+
+</script>
+{% endblock content %}

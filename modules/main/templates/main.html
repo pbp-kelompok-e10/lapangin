@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div id="main">
+    <div id="hero-container" class="relative">
+        <img src="{% static 'img/hero.png' %}" alt="Soccer field from above" class="w-full h-[700px] md:h-auto object-cover">
+        <div class="absolute inset-0 flex flex-col justify-center items-center text-center md:items-start md:text-left bg-black bg-opacity-30">
+            <div class="text-white max-w-2xl px-8 md:pl-20 lg:pl-40">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">Siap Bermain?<br>Booking Arena<br>Terbaikmu<br>Hari Ini.</h1>
+                <p class="text-base lg:text-lg mb-6 max-w-xl opacity-90">Selamat tinggal pada proses manual. Cek ketersediaan dan amankan tempat Anda 24/7 langsung dari perangkat apa pun.</p>
+                <a href="#" class="inline-block">
+                    <button class="inline-flex items-center gap-2 px-6 py-3 bg-[#99ff00] text-black rounded-full font-bold hover:bg-[#b8e600] transition-colors">
+                        Sewa Stadion Sekarang
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-12 md:py-16 bg-gray-50 overflow-hidden"> <div class="container mx-auto text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-[#003C9C] mb-8 px-4">
+                Solusi Tepat untuk Setiap Kebutuhan
+            </h2>
+
+            <div class="flex justify-center gap-4 mb-12 px-4">
+                <button
+                    data-target="#penyewa-content"
+                    class="tab-btn text-white bg-[#0062FF] px-6 py-2 font-semibold border-2 border-[#0062FF] rounded-full transition-colors duration-300">
+                    Penyewa
+                </button>
+                <button
+                    data-target="#pemilik-content"
+                    class="tab-btn text-[#0062FF] bg-[#E6EFFF] px-6 py-2 font-semibold border-2 border-[#0062FF] rounded-full transition-colors duration-300">
+                    Pemilik Lapangan
+                </button>
+            </div>
+
+            <div id="tab-content-container">
+                <div id="penyewa-content" class="tab-content">
+                    <div class="flex space-x-4 overflow-x-auto pb-4 pl-4 md:grid md:grid-cols-3 md:gap-8 md:space-x-0 md:p-0">
+                        <img src="{% static 'img/Rectangle 4.png' %}" alt="Suasana lapangan futsal" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                        <img src="{% static 'img/Rectangle 5.png' %}" alt="Anak-anak bermain bola" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                        <img src="{% static 'img/Rectangle 6.png' %}" alt="Tim sepak bola wanita" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                    </div>
+                    <div class="mt-8 md:mt-12 px-4">
+                        <h3 class="text-xl md:text-2xl font-bold text-[#003C9C]">Temukan & Booking dalam Sekejap</h3>
+                        <p class="max-w-3xl mx-auto mt-4 text-gray-700">
+                            Nikmati kemudahan menemukan dan memesan lapangan terbaik hanya dengan beberapa klik. Dapatkan akses ke jadwal real-time, harga transparan, dan konfirmasi instan tanpa perlu repot lagi.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="pemilik-content" class="tab-content hidden">
+                    <div class="flex space-x-4 overflow-x-auto pb-4 pl-4 md:grid md:grid-cols-3 md:gap-8 md:space-x-0 md:p-0">
+                        <img src="{% static 'img/stadium1.png' %}" alt="Stadion modern" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                        <img src="{% static 'img/stadium2.png' %}" alt="Suporter di stadion" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                        <img src="{% static 'img/stadium3.png' %}" alt="Stadion dari udara" class="w-4/5 h-64 object-cover rounded-lg shadow-md flex-shrink-0 md:w-full md:h-full">
+                    </div>
+                    <div class="mt-8 md:mt-12 px-4">
+                        <h3 class="text-xl md:text-2xl font-bold text-[#003C9C]">Jangkau Lebih Banyak Penyewa</h3>
+                        <p class="max-w-3xl mx-auto mt-4 text-gray-700">
+                            Daftarkan venue Anda dan biarkan sistem kami bekerja. Dapatkan visibilitas lebih luas, kalender digital terpusat, dan laporan performa untuk mengembangkan bisnis Anda.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const activeClasses = ['text-white', 'bg-[#0062FF]'];
+        const inactiveClasses = ['text-[#0062FF]', 'bg-[#E6EFFF]'];
+    
+        tabButtons.forEach(clickedButton => {
+            clickedButton.addEventListener('click', () => {
+                const targetId = clickedButton.getAttribute('data-target');
+    
+                tabButtons.forEach(button => {
+                    if (button === clickedButton) {
+                        button.classList.add(...activeClasses);
+                        button.classList.remove(...inactiveClasses);
+                    } else {
+                        button.classList.remove(...activeClasses);
+                        button.classList.add(...inactiveClasses);
+                    }
+                });
+    
+                tabContents.forEach(content => {
+                    if ("#" + content.id === targetId) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+{% endblock content %}
