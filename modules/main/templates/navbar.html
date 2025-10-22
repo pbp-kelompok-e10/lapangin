@@ -131,14 +131,24 @@
         if (userData && userData.is_authenticated) {
             const userMenuTrigger = document.getElementById("user-menu-trigger");
             const userMenuDropDown = document.getElementById("user-menu-dropdown");
-            
+            const arrowSvg = document.getElementById("arrow-svg");
+            const originalColor = "#808080";
+            const clickedColor = "#0062FF";
+
             userMenuTrigger.addEventListener("click", (e) => {
+                const currentColor = arrowSvg.getAttribute("stroke");
                 e.preventDefault();
                 userMenuDropDown.classList.toggle("hidden");
                 userMenuTrigger.querySelector("svg").classList.toggle("rotate-180");
                 userMenuTrigger.classList.toggle("text-[#737373]")
                 userMenuTrigger.classList.toggle("hover:text-[#4B4B4B]")
                 userMenuTrigger.classList.toggle("text-[#0062FF]")
+
+                if (currentColor == originalColor) {
+                    arrowSvg.setAttribute("stroke", clickedColor);
+                } else {
+                    arrowSvg.setAttribute("stroke", originalColor);
+                }
             });
         }
         
