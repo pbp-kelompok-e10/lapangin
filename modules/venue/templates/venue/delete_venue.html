@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Hapus Venue - Lapangin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+    <h1 class="text-3xl font-bold mb-6">Hapus Venue</h1>
+    <p>Apakah Anda yakin ingin menghapus "{{ venue.name }}"?</p>
+    <form method="POST" action="{% url 'venue:delete_venue' venue.id %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-500 text-white p-2 rounded hover:bg-red-600 mt-4">Hapus</button>
+        <a href="{% url 'venue:search_venue' %}" class="ml-4 text-gray-500 hover:underline">Batal</a>
+    </form>
+</div>
+{% endblock %}

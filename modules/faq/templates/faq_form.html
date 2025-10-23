@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mx-auto px-4 py-8 mt-20 md:mt-24">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-[#003C9C] mb-2 font-['Poppins']">
+                {% if faq %}Edit FAQ{% else %}Tambah FAQ Baru{% endif %}
+            </h1>
+            <p class="text-gray-600 font-['Poppins']">
+                {% if faq %}Perbarui informasi FAQ yang sudah ada{% else %}Tambahkan pertanyaan yang sering ditanyakan{% endif %}
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-xl shadow-md p-6 md:p-8 border border-gray-200">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Pertanyaan -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 font-['Poppins']">
+                        Pertanyaan <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="question" 
+                        value="{% if faq %}{{ faq.question }}{% endif %}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003C9C] focus:border-transparent outline-none transition-all font-['Poppins']"
+                        placeholder="Masukkan pertanyaan FAQ"
+                        required
+                    >
+                </div>
+
+                <!-- Jawaban -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 font-['Poppins']">
+                        Jawaban <span class="text-red-500">*</span>
+                    </label>
+                    <textarea 
+                        name="answer" 
+                        rows="6"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003C9C] focus:border-transparent outline-none transition-all resize-none font-['Poppins']"
+                        placeholder="Masukkan jawaban lengkap"
+                        required
+                    >{% if faq %}{{ faq.answer }}{% endif %}</textarea>
+                    <p class="mt-2 text-sm text-gray-500 font-['Poppins']">Gunakan enter untuk membuat paragraf baru</p>
+                </div>
+
+                <!-- Kategori -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 font-['Poppins']">
+                        Kategori <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                        name="category" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#003C9C] focus:border-transparent outline-none transition-all font-['Poppins']"
+                        required
+                    >
+                        <option value="">-- Pilih Kategori --</option>
+                        {% for code, name in categories %}
+                        <option value="{{ code }}" {% if faq and faq.category == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button 
+                        type="submit" 
+                        class="flex-1 px-6 py-3 bg-[#003C9C] text-white font-semibold rounded-lg hover:bg-[#002D75] transition-colors focus:ring-4 focus:ring-blue-200 font-['Poppins']"
+                    >
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            {% if faq %}Update FAQ{% else %}Simpan FAQ{% endif %}
+                        </span>
+                    </button>
+                    <a 
+                        href="{% url 'faq:faq_list' %}" 
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors text-center font-['Poppins']"
+                    >
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Batal
+                        </span>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div class="text-sm text-blue-700 font-['Poppins']">
+                    <p class="font-semibold mb-1">Tips:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Buat pertanyaan yang jelas dan mudah dipahami</li>
+                        <li>Berikan jawaban yang lengkap dan informatif</li>
+                        <li>Pilih kategori yang sesuai untuk memudahkan pencarian</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input:focus, textarea:focus, select:focus {
+        box-shadow: 0 0 0 3px rgba(0, 60, 156, 0.1);
+    }
+</style>
+{% endblock %}
