@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'modules.review',
     'modules.faq',
     'modules.main',
-    'modules.accounts'
+    'modules.accounts',
 ]
 
 MIDDLEWARE = [
