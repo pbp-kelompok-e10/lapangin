@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Cari Lapangan - Lapangin{% endblock %}
+
+<div class="bg-[#FFFEF9] text-gray-800">
+    {% include "navbar.html" %}
+    {% block content %}
+    <!-- Back Button -->
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <a href="{% url 'venue:search_venue' %}" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Kembali</span>
+        </a>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="max-w-7xl mx-auto px-6 pb-8">
+        <div id="heroImage" class="w-full h-96 rounded-2xl overflow-hidden">
+            <img src="{{ selected_venue.thumbnail }}" alt="Stadion Image" class="w-full h-full object-cover">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 pb-12">
+        <div class="grid grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="col-span-2">
+                <!-- Title and Rating -->
+                <div class="mb-8" id="venueInfo">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-3" id="stadiumName">{{ selected_venue.stadium }}</h1>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L15.09 8.26L22 9.27L17.73 14.09L18.73 21L12 17.27L5.27 21L6.27 14.09L2 9.27L8.91 8.26L12 2Z" fill="#FFCC00"/>
+                            </svg>
+                            <span class="font-semibold text-gray-900" id="rating">Loading...</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-gray-600" id="location">
+                            <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 10.6001C20 16.5918 13.4224 22.8319 11.2137 24.7591C11.0079 24.9155 10.7574 25 10.5 25C10.2426 25 9.99208 24.9155 9.78631 24.7591C7.57756 22.8319 1 16.5918 1 10.6001C1 8.05401 2.00089 5.61218 3.78249 3.81181C5.56408 2.01144 7.98044 1 10.5 1C13.0196 1 15.4359 2.01144 17.2175 3.81181C18.9991 5.61218 20 8.05401 20 10.6001Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10.5 14.2002C12.4675 14.2002 14.0625 12.5884 14.0625 10.6001C14.0625 8.61187 12.4675 7.00007 10.5 7.00007C8.53249 7.00007 6.9375 8.61187 6.9375 10.6001C6.9375 12.5884 8.53249 14.2002 10.5 14.2002Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span id="cityCountry">{{ selected_venue.city }}, {{ selected_venue.country }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-3">Deskripsi Stadion</h2>
+                    <p class="text-gray-700 leading-relaxed" id="description">Loading...</p>
+                </div>
+
+                <!-- Cek Ketersediaan -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Cek Ketersediaan</h2>
+                    <div class="flex items-center gap-3 overflow-x-auto pb-2" id="availability">
+                        <button class="px-4 py-3 bg-blue-500 text-white rounded-lg font-semibold whitespace-nowrap">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold whitespace-nowrap hover:bg-gray-50">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-gray-200 text-gray-500 rounded-lg font-semibold whitespace-nowrap cursor-not-allowed">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold whitespace-nowrap hover:bg-gray-50">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold whitespace-nowrap hover:bg-gray-50">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold whitespace-nowrap hover:bg-gray-50">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold whitespace-nowrap hover:bg-gray-50">
+                            Sen<br>6 Okt
+                        </button>
+                        <button class="p-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2V6M16 2V6M3 10H21M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Ulasan</h2>
+                    <div class="space-y-4" id="reviews">
+                        <!-- Review akan diisi oleh JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Fixed Card (Bukan Sticky) -->
+            <div class="col-span-1">
+                <div class="bg-white border border-gray-200 rounded-xl p-6">
+                    <!-- Price Section -->
+                    <div class="mb-6" id="priceSection">
+                        <p class="text-gray-600 text-sm mb-2">Mulai dari</p>
+                        <h3 class="text-3xl font-bold text-blue-500 mb-4" id="price">{{ selected_venue.price }}</h3>
+                        <a href="#" id="rentButton" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 text-center block">Sewa</a>
+                    </div>
+
+                    <!-- Fasilitas Venue -->
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <h4 class="font-bold text-gray-900 mb-3">Fasilitas Venue</h4>
+                        <ul class="space-y-2 text-sm text-gray-700" id="facilities">
+                            <li class="flex gap-2"><span>•</span><span>AC Arena terpasang (12 jam)</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Ruang Sekretariat</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Ruang Ganti</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Ruang Medis</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Scoring Board</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Sound System</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Lahan Parkir</span></li>
+                            <li class="flex gap-2"><span>•</span><span>Back Up Genset</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Aturan Venue -->
+                    <div>
+                        <h4 class="font-bold text-gray-900 mb-3">Aturan Venue</h4>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex gap-2"><span>•</span><span>No Refund</span></li>
+                            <li class="flex gap-2"><span>•</span><span>No Reschedule</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+<script>
+    // Logika untuk ulasan
+    let currentRating = 0;
+    const ratingStars = document.getElementById('ratingStars').getElementsByTagName('button');
+    const reviewText = document.getElementById('reviewText');
+    const cancelReview = document.getElementById('cancelReview');
+    const submitReview = document.getElementById('submitReview');
+
+    // Handle rating stars
+    Array.from(ratingStars).forEach(star => {
+        star.addEventListener('click', () => {
+            currentRating = parseInt(star.getAttribute('data-rating'));
+            Array.from(ratingStars).forEach(s => s.classList.remove('text-yellow-500'));
+            for (let i = 0; i < currentRating; i++) {
+                ratingStars[i].classList.add('text-yellow-500');
+            }
+        });
+    });
+
+    // Handle submit review (contoh, bisa diintegrasikan dengan API)
+    submitReview.addEventListener('click', () => {
+        if (currentRating && reviewText.value.trim()) {
+            const review = {
+                user: "Joe Dart", // Ganti dengan user yang login
+                rating: currentRating,
+                comment: reviewText.value.trim()
+            };
+            const reviewElement = document.createElement('div');
+            reviewElement.className = 'flex gap-4';
+            reviewElement.innerHTML = `
+                <div class="w-12 h-12 bg-gray-300 rounded-full flex-shrink-0"></div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900">${review.user}</h3>
+                    <div class="flex gap-1 mb-2">
+                        ${Array(review.rating).fill().map(() => '<svg width="24" height="24" viewBox="0 0 24 24" fill="#FFCC00"><path d="M12 2L15.09 8.26L22 9.27L17.73 14.09L18.73 21L12 17.27L5.27 21L6.27 14.09L2 9.27L8.91 8.26L12 2Z"/></svg>').join('')}
+                    </div>
+                    <p class="text-gray-700 text-sm">${review.comment}</p>
+                </div>
+            `;
+            document.getElementById('reviews').appendChild(reviewElement);
+            reviewText.value = '';
+            currentRating = 0;
+            Array.from(ratingStars).forEach(s => s.classList.remove('text-yellow-500'));
+        } else {
+            alert('Silakan beri rating dan tulis ulasan!');
+        }
+    });
+
+    // Handle cancel review
+    cancelReview.addEventListener('click', () => {
+        reviewText.value = '';
+        currentRating = 0;
+        Array.from(ratingStars).forEach(s => s.classList.remove('text-yellow-500'));
+    });
+</script>
