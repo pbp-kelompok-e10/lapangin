@@ -4,9 +4,9 @@
 
 {% block title %}Cari Lapangan - Lapangin{% endblock %}
 
+{% block content %}
 <div class="bg-[#FFFEF9] text-gray-800">
     {% include "navbar.html" %}
-    {% block content %}
     <!-- Back Button -->
     <div class="max-w-7xl mx-auto px-6 py-4">
         <a href="{% url 'venue:search_venue' %}" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
@@ -140,7 +140,6 @@
     const reviewText = document.getElementById('reviewText');
     const cancelReview = document.getElementById('cancelReview');
     const submitReview = document.getElementById('submitReview');
-
     // Handle rating stars
     Array.from(ratingStars).forEach(star => {
         star.addEventListener('click', () => {
@@ -188,3 +187,5 @@
         Array.from(ratingStars).forEach(s => s.classList.remove('text-yellow-500'));
     });
 </script>
+
+{% endblock content %}
