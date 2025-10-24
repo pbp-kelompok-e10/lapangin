@@ -31,7 +31,7 @@ class Venue(models.Model):
     thumbnail = models.TextField(default='https://via.placeholder.com/300x200', blank=True)  # For Google image URLs
     description = models.TextField(default='', blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # Tambahkan ini
-    rating = models.PositiveIntegerField(default = 0);
-
+    rating = models.DecimalField(max_digits=3, decimal_places=1)
+    
     def __str__(self):
         return self.name

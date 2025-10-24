@@ -81,7 +81,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lapangin.wsgi.application'
-
+CSRF_TRUSTED_ORIGINS = ["https://angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id"]
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

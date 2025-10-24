@@ -226,6 +226,39 @@
             </div>
         </div>
     </div>
+
+    <div id="booking-modal" class="fixed inset-0 z-40 hidden overflow-y-auto">
+        <div id="booking-modal-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50"></div>
+        <div class="relative z-50 flex items-center justify-center min-h-screen p-4">
+            <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b">
+                    <h3 class="text-2xl font-semibold text-gray-800">Pilih Tanggal Booking</h3>
+                    <button id="close-booking-modal-btn" class="text-gray-400 transition hover:text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+    
+                <div id="bookingFormMessages" class="my-4 text-sm text-red-600"></div>
+    
+                <div class="mb-6">
+                    <label for="booking-date-picker" class="block text-sm font-medium text-gray-700 mb-2">Pilih Rentang Tanggal:</label>
+                    <input type="text" id="booking-date-picker" placeholder="Pilih tanggal mulai dan selesai..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+    
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button id="cancel-booking-btn" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                        Batal
+                    </button>
+                    <button id="submit-booking-btn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-[#0062FF] border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Booking Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -268,7 +301,7 @@
                 const venue = result.venue;
 
                 stadiumNameEl.textContent = venue.stadium;
-                ratingEl.textContent =  venue.rating != null ? venue.rating.toFixed(1) : '-.--';
+                ratingEl.textContent =  venue.rating != null ? venue.rating : '-.--';
                 cityCountryEl.textContent = `${venue.city}, ${venue.country}`;
                 descriptionEl.textContent = venue.description;
                 priceEl.textContent = `Rp ${venue.price.toLocaleString('id-ID')}`;
@@ -595,6 +628,132 @@
             }
         }
     });
+
+    const rentButton = document.getElementById('rentButton');
+    const bookingModal = document.getElementById('booking-modal');
+    const closeBookingModalBtn = document.getElementById('close-booking-modal-btn');
+    const cancelBookingBtn = document.getElementById('cancel-booking-btn');
+    const submitBookingBtn = document.getElementById('submit-booking-btn');
+    const bookingModalOverlay = document.getElementById('booking-modal-overlay');
+    const datePickerInput = document.getElementById('booking-date-picker');
+    const bookingFormMessages = document.getElementById('bookingFormMessages');
+
+    let datePickerInstance = null;
+
+    async function openBookingModal() {
+        bookingFormMessages.textContent = '';
+        if (!datePickerInput) return;
+
+        if (datePickerInstance) {
+            datePickerInstance.destroy();
+            datePickerInstance = null;
+        }
+        datePickerInput.value = '';
+
+        const bookedDatesApiUrl = `{% url 'booking:get_booked_dates_api' venue_id=0 %}`.replace('0', venueId);
+
+        try {
+            const response = await fetch(bookedDatesApiUrl);
+            if (!response.ok) throw new Error('Gagal memuat data booking.');
+            const data = await response.json();
+            
+            datePickerInstance = flatpickr(datePickerInput, {
+                mode: "range",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disable: data.booked_dates || [],
+                locale: {
+                    firstDayOfWeek: 1,
+                    weekdays: {
+                        shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                        longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
+                    },
+                    months: {
+                        shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+                        longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
+                    },
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    bookingFormMessages.textContent = '';
+                }
+            });
+
+            if (bookingModal) bookingModal.classList.remove('hidden');
+
+        } catch (error) {
+            console.error("Error opening booking modal:", error);
+            alert("Gagal membuka form booking: " + error.message);
+        }
+    }
+
+    function closeBookingModal() {
+        if (bookingModal) bookingModal.classList.add('hidden');
+        if (datePickerInstance) {
+            datePickerInstance.destroy();
+            datePickerInstance = null;
+        }
+        bookingFormMessages.textContent = '';
+    }
+
+    async function submitBooking() {
+        if (!datePickerInstance || datePickerInstance.selectedDates.length < 2) {
+            bookingFormMessages.textContent = 'Silakan pilih tanggal mulai dan selesai.';
+            return;
+        }
+
+        const startDate = datePickerInstance.selectedDates[0];
+        const endDate = datePickerInstance.selectedDates[1];
+        
+        const formattedStartDate = flatpickr.formatDate(startDate, "Y-m-d");
+        const formattedEndDate = flatpickr.formatDate(endDate, "Y-m-d");
+
+        const createBookingUrl = "{% url 'booking:create_booking_api' %}";
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (!csrftoken) {
+            alert('Error: Missing security token.');
+            return;
+        }
+
+        bookingFormMessages.textContent = 'Memproses booking...';
+
+        try {
+            const response = await fetch(createBookingUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    venue_id: venueId,
+                    start_date: formattedStartDate,
+                    end_date: formattedEndDate
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                closeBookingModal();
+                showToast(result.message || "Booking berhasil!", "", "success");
+            } else {
+                bookingFormMessages.textContent = result.message || 'Gagal membuat booking.';
+            }
+
+        } catch (error) {
+            console.error("Error submitting booking:", error);
+            bookingFormMessages.textContent = 'Terjadi kesalahan jaringan saat booking.';
+        }
+    }
+
+
+    if (rentButton) rentButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        openBookingModal();
+    });
+    if (closeBookingModalBtn) closeBookingModalBtn.addEventListener('click', closeBookingModal);
+    if (cancelBookingBtn) cancelBookingBtn.addEventListener('click', closeBookingModal);
+    if (bookingModalOverlay) bookingModalOverlay.addEventListener('click', closeBookingModal);
+    if (submitBookingBtn) submitBookingBtn.addEventListener('click', submitBooking);
 </script>
 
 {% endblock content %}

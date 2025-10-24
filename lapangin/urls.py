@@ -28,7 +28,8 @@ urlpatterns = [
     path('faq/', include('modules.faq.urls')),
     path('user/', include('modules.user.urls')),
     path('venues/', include('modules.venue.urls')),
-    path('review/', include('modules.review.urls'))
+    path('review/', include('modules.review.urls')),
+    path('booking/', include('modules.booking.urls'))
 ]
 
 
