@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.db.models import Avg
 from .models import Review
 from modules.venue.models import Venue
+from decimal import Decimal, ROUND_HALF_UP  # <-- IMPORT INI
 
 @receiver([post_save, post_delete], sender=Review)
 def update_venue_rating(sender, instance, **kwargs):
@@ -13,8 +14,10 @@ def update_venue_rating(sender, instance, **kwargs):
     )['avg_rating']
 
     if new_rating is not None:
-        venue.rating = round(new_rating, 1)
+        venue.rating = Decimal(new_rating).quantize(
+            Decimal('0.1'),
+            rounding=ROUND_HALF_UP
+        )
     else:
-        venue.rating = 0
-
+        venue.rating = Decimal('0.0')
     venue.save(update_fields=['rating'])
