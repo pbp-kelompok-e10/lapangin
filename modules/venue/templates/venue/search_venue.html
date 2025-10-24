@@ -4,150 +4,380 @@
 {% block title %}Cari Lapangan - Lapangin{% endblock %}
 
 {% block content %}
-<body class="bg-[#FFFEF9] text-gray-800">
+<div class="bg-[#FFFEF9] text-gray-800">
+    {% include "navbar.html" %}
 
-{% include "navbar.html" %}
+    <!-- Filter -->
+    <div class="w-full max-w-[1280px] mx-auto mt-40 bg-white shadow-md rounded-[100px] flex flex-col md:flex-row justify-between items-center gap-6 px-8 py-6">
+        <!-- Input cari stadion -->
+        <div class="w-full md:w-[380px]">
+            <div class="bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
+                <input 
+                    id="searchInput"
+                    type="text" 
+                    placeholder="Cari nama stadion"
+                    class="w-full text-gray-500 text-sm font-poppins outline-none"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M19 11a8 8 0 11-16 0 8 8 0 0116 0z" />
+                </svg>
+            </div>
+        </div>
 
-<div class="w-full max-w-[1280px] mx-auto mt-40 bg-white shadow-md rounded-[100px] flex flex-col md:flex-row justify-between items-center gap-6 px-8 py-6">
-  <!-- Input cari stadion -->
-  <div class="w-full md:w-[380px]">
-    <div class="bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
-      <input 
-        type="text" 
-        placeholder="Cari nama stadion"
-        class="w-full text-gray-500 text-sm font-poppins outline-none"
-      >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M19 11a8 8 0 11-16 0 8 8 0 0116 0z" />
-      </svg>
-    </div>
-  </div>
+        <!-- Lokasi Dropdown -->
+        <div class="relative">
+            <button id="lokasiBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
+                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21c-1.62-1.38-8-7.02-8-11a8 8 0 1116 0c0 3.98-6.38 9.62-8 11z" />
+                        <circle cx="12" cy="10" r="3" stroke-width="2" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[#0062FF] font-bold text-base font-poppins">Lokasi</p>
+                    <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
+                        <span id="lokasiText">Pilih Kota</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="lokasiArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+                        </svg>
+                    </div>
+                </div>
+            </button>
+            <div id="lokasiDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[300px] max-h-[300px] overflow-y-auto">
+                <div class="p-2" id="lokasiOptions"></div>
+            </div>
+        </div>
 
-  <!-- Lokasi -->
-  <div class="flex items-center gap-4">
-    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21c-1.62-1.38-8-7.02-8-11a8 8 0 1116 0c0 3.98-6.38 9.62-8 11z" />
-        <circle cx="12" cy="10" r="3" stroke-width="2" />
-      </svg>
-    </div>
-    <div>
-      <p class="text-[#0062FF] font-bold text-base font-poppins">Lokasi</p>
-      <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
-        <span>Pilih Kota</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
-        </svg>
-      </div>
-    </div>
-  </div>
+        <!-- Kapasitas Dropdown -->
+        <div class="relative">
+            <button id="kapasitasBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
+                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
+                    <img src="{% static 'img/users.png' %}" alt="Kapasitas Icon" class="w-6 h-6">
+                </div>
+                <div>
+                    <p class="text-[#0062FF] font-bold text-base font-poppins">Kapasitas Kursi</p>
+                    <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
+                        <span id="kapasitasText">Pilih</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="kapasitasArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+                        </svg>
+                    </div>
+                </div>
+            </button>
+            <div id="kapasitasDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div class="p-2" id="kapasitasOptions"></div>
+            </div>
+        </div>
 
-  <!-- Kapasitas -->
-  <div class="flex items-center gap-4">
-    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20v-2a4 4 0 00-3-3.87m-4 0A4 4 0 007 18v2m4-10a4 4 0 110-8 4 4 0 010 8zm6 6a4 4 0 10-8 0v2h8v-2z" />
-      </svg>
+        <!-- Tombol Cari -->
+        <button id="cariBtn" class="flex items-center justify-center gap-2 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition w-full md:w-auto">
+            <span>Cari</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-7-7m7 7l-7 7" />
+            </svg>
+        </button>
     </div>
-    <div>
-      <p class="text-[#0062FF] font-bold text-base font-poppins">Kapasitas Kursi</p>
-      <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
-        <span>Pilih</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
-        </svg>
-      </div>
-    </div>
-  </div>
 
-  <!-- 🔵 Tombol Cari -->
-  <button class="flex items-center justify-center gap-2 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition w-full md:w-auto">
-    <span>Cari</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-7-7m7 7l-7 7" />
-    </svg>
-  </button>
+    <!-- Tombol Sorting -->
+    <div class="w-full max-w-[1280px] mx-auto mt-8">
+        <div id="sortBtn" data-layer="Button" class="Button cursor-pointer hover:opacity-80 transition" style="height: 48px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05); border-radius: 12px; outline: 1px #D4D4D4 solid; outline-offset: -1px; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+            <div id="sortText" data-layer="Harga Terendah" class="HargaTerendah" style="color: #121212; font-size: 16px; font-family: Poppins; font-weight: 500; line-height: 24px; word-wrap: break-word">Harga Terendah</div>
+            <div data-svg-wrapper data-layer="lucide/chevron-down" class="LucideChevronDown" style="position: relative">
+                <svg id="sortArrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kontainer untuk hasil kartu -->
+    <div id="results" class="w-full max-w-[1280px] mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div class="w-full max-w-[1280px] mx-auto pb-12 flex justify-center">
+        <button id="moreBtn" class="mt-8 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition">More</button>
+    </div>
 </div>
 
-<!-- ✅ SECTION: FILTER + CARD GRID -->
-<section class="max-w-[1280px] mx-auto mt-16">
-  
-  <!-- Filter buttons -->
-  <div class="flex justify-between items-center mb-10">
-    <div data-layer="Frame 481380" class="flex gap-6">
-      <div data-layer="Button" class="Button" style="height: 48px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05); border-radius: 12px; outline: 1px #D4D4D4 solid; outline-offset: -1px; justify-content: center; align-items: center; gap: 20px; display: flex">
-        <div class="Popular" style="color: #121212; font-size: 16px; font-family: Poppins; font-weight: 500; line-height: 24px;">Popular</div>
-        <div class="LucideChevronDown">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 9L12 15L18 9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      <div data-layer="Button" class="Button" style="height: 48px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05); border-radius: 100px; outline: 1px #D4D4D4 solid; outline-offset: -1px; justify-content: center; align-items: center; gap: 20px; display: flex">
-        <div class="Filter" style="color: #121212; font-size: 16px; font-family: Poppins; font-weight: 500; line-height: 24px;">Filter</div>
-        <div class="LucideSlidersHorizontal">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 5H3M12 19H3M14 3V7M16 17V21M21 12H12M21 19H16M21 5H14M8 10V14M8 12H3" stroke="#121212" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- CARD GRID -->
-  <div class="flex flex-wrap gap-10 justify-center">
-    {% for v in venues %}
-      <div style="width: 416px; height: 485px; padding: 24px; background: white; box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.10); border-radius: 12px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 16px; display: inline-flex; font-family: 'Poppins', sans-serif;">
-        
-        <!-- Gambar -->
-        <div style="align-self: stretch; height: 183px; position: relative; overflow: hidden; border-radius: 12px;">
-          <img src="{% static v.image %}" alt="{{ v.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
 
-        <!-- Lokasi dan Rating -->
-        <div style="align-self: stretch; justify-content: space-between; align-items: center; display: flex;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 10.6C20 16.59 13.42 22.83 11.21 24.76C11.01 24.92 10.76 25 10.5 25C10.24 25 9.99 24.92 9.79 24.76C7.58 22.83 1 16.59 1 10.6C1 8.05 2 5.61 3.78 3.81C5.56 2.01 7.98 1 10.5 1C13.02 1 15.44 2.01 17.22 3.81C19 5.61 20 8.05 20 10.6Z" stroke="#737373" stroke-width="2"/>
-              <path d="M10.5 14.2C12.47 14.2 14.06 12.59 14.06 10.6C14.06 8.61 12.47 7 10.5 7C8.53 7 6.94 8.61 6.94 10.6C6.94 12.59 8.53 14.2 10.5 14.2Z" stroke="#737373" stroke-width="2"/>
-            </svg>
-            <span style="color: #737373; font-size: 16px; font-weight: 500;">{{ v.location }}</span>
-          </div>
+<script>
+    const venueDetailUrls = {
+        {% for venue in venues %}
+        {% if venue.id is not None %}
+        {{ venue.id }}: "{% url 'venue:venue_detail' venue_id=venue.id %}",
+        {% endif %}
+        {% endfor %}
+    };
 
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <svg width="20" height="20" fill="#FFCC00" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 15l-5.878 3.09L5.64 12.18.76 7.41l6.09-.88L10 1l3.15 5.53 6.09.88-4.88 4.77 1.52 5.91z"/>
-            </svg>
-            <span style="color: #121212; font-size: 16px; font-weight: 500;">{{ v.rating }}</span>
-          </div>
-        </div>
-
-        <!-- Nama dan Deskripsi -->
-        <div style="display: flex; flex-direction: column; gap: 8px; align-self: stretch;">
-          <h3 style="font-size: 20px; font-weight: 700; color: #121212;">{{ v.name }}</h3>
-          <p style="color: #121212; font-size: 16px; font-weight: 500;">{{ v.description|truncatechars:80 }}</p>
-        </div>
-
-        <!-- Kapasitas -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <svg width="24" height="24" stroke="#121212" stroke-width="2" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 21V19C16 17.94 15.58 16.92 14.83 16.17C14.08 15.42 13.06 15 12 15H6C4.94 15 3.92 15.42 3.17 16.17C2.42 16.92 2 17.94 2 19V21M13 7C13 9.21 11.21 11 9 11C6.79 11 5 9.21 5 7C5 4.79 6.79 3 9 3C11.21 3 13 4.79 13 7Z"/>
-          </svg>
-          <span style="font-size: 16px; font-weight: 500; color: #121212;">{{ v.capacity }} Kursi</span>
-        </div>
-
-        <!-- Harga dan Tombol -->
-        <div style="align-self: stretch; justify-content: space-between; display: flex; align-items: center;">
-          <span style="color: #0062FF; font-size: 28px; font-weight: 700;">Rp {{ v.price|floatformat:0 }}</span>
-          <button style="height: 48px; padding: 0 24px; background: #0062FF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;">
-            Sewa
-          </button>
-        </div>
-      </div>
+    const venueEditUrls = {
+    {% for venue in venues %}
+    {% if venue.id is not None %}
+    {{ venue.id }}: "{% url 'venue:edit_venue' venue_id=venue.id %}",
+    {% endif %}
     {% endfor %}
-  </div>
+};
 
-</section>
+    const venueDeleteUrls = {
+        {% for venue in venues %}
+        {% if venue.id is not None %}
+        {{ venue.id }}: "{% url 'venue:delete_venue' venue_id=venue.id %}",
+        {% endif %}
+        {% endfor %}
+    };
+    const csrftoken = '{{ csrf_token }}';
+    const is_admin = {{ user.is_superuser|yesno:"true,false" }};
+    const current_user_id = '{{ user.is_authenticated|yesno:"true,false" }}' === 'true' ? '{{ user.id|default:"" }}' : '';
+    const can_add_venue = {{ can_add_venue|yesno:"true,false" }};
+    const venues = JSON.parse('{{ venues|safe }}');
+    
+    const locations = [...new Set(venues.map(v => JSON.stringify({ city: v.city, country: v.country })))].map(JSON.parse);
+    const capacities = [
+        { label: "0-10.000", min: 0, max: 10000 },
+        { label: "10.000-20.000", min: 10001, max: 20000 },
+        { label: "20.000-50.000", min: 20001, max: 50000 },
+        { label: "50.000-100.000", min: 50001, max: 100000 }
+    ];
 
-</body>
+    const lokasiBtn = document.getElementById('lokasiBtn');
+    const lokasiDropdown = document.getElementById('lokasiDropdown');
+    const lokasiOptions = document.getElementById('lokasiOptions');
+    const lokasiText = document.getElementById('lokasiText');
+    const lokasiArrow = document.getElementById('lokasiArrow');
+
+    const kapasitasBtn = document.getElementById('kapasitasBtn');
+    const kapasitasDropdown = document.getElementById('kapasitasDropdown');
+    const kapasitasOptions = document.getElementById('kapasitasOptions');
+    const kapasitasText = document.getElementById('kapasitasText');
+    const kapasitasArrow = document.getElementById('kapasitasArrow');
+
+    const sortBtn = document.getElementById('sortBtn');
+    const sortText = document.getElementById('sortText');
+    const sortArrow = document.getElementById('sortArrow');
+
+    const cariBtn = document.getElementById('cariBtn');
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('results');
+
+    let displayedCount = 0;
+    let sortOrder = 'lowToHigh'; // Default: Harga Terendah
+
+    function displayVenues(start, end, venuesToShow = venues) {
+        const venuesSlice = venuesToShow.slice(start, end);
+        for (const venue of venuesSlice) {
+            const price = venue.price.toLocaleString('id-ID', { minimumFractionDigits: 0 });
+            const card = document.createElement('a');
+            card.href = venueDetailUrls[venue.id] || `/venues/venue/${venue.id || '0'}/`; // Fallback dengan id default
+            card.className = 'block relative'; // Added relative to position buttons
+            card.style.cssText = `
+                width: 416px;
+                height: 485px;
+                padding: 24px;
+                background: white;
+                box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.10);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 16px;
+                font-family: "Poppins", sans-serif;
+                text-decoration: none;
+                color: inherit;
+                cursor: pointer;
+                transition: transform 0.2s;
+            `;
+
+card.innerHTML = `
+            <div style="align-self: stretch; height: 183px; position: relative; overflow: hidden; border-radius: 12px;">
+                <img src="${venue.thumbnail}" alt="${venue.stadium}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <div style="align-self: stretch; justify-content: space-between; align-items: center; display: flex;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 10.6C20 16.59 13.42 22.83 11.21 24.76C11.01 24.92 10.76 25 10.5 25C10.24 25 9.99 24.92 9.79 24.76C7.58 22.83 1 16.59 1 10.6C1 8.05 2 5.61 3.78 3.81C5.56 2.01 7.98 1 10.5 1C13.02 1 15.44 2.01 17.22 3.81C19 5.61 20 8.05 20 10.6Z" stroke="#737373" stroke-width="2"/>
+                        <path d="M10.5 14.2C12.47 14.2 14.06 12.59 14.06 10.6C14.06 8.61 12.47 7 10.5 7C8.53 7 6.94 8.61 6.94 10.6C6.94 12.59 8.53 14.2 10.5 14.2Z" stroke="#737373" stroke-width="2"/>
+                    </svg>
+                    <span style="color: #737373; font-size: 16px; font-weight: 500;">${venue.city}, ${venue.country}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="20" height="20" fill="#FFCC00" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 15l-5.878 3.09L5.64 12.18.76 7.41l6.09-.88L10 1l3.15 5.53 6.09.88-4.88 4.77 1.52 5.91z"/>
+                    </svg>
+                    <span style="color: #121212; font-size: 16px; font-weight: 500;">4.5</span>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; align-self: stretch;">
+                <h3 style="font-size: 20px; font-weight: 700; color: #121212;">${venue.stadium}</h3>
+                <p style="color: #121212; font-size: 16px; font-weight: 500;">Stadion modern dengan fasilitas lengkap untuk berbagai acara olahraga.</p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="24" height="24" stroke="#121212" stroke-width="2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 21V19C16 17.94 15.58 16.92 14.83 16.17C14.08 15.42 13.06 15 12 15H6C4.94 15 3.92 15.42 3.17 16.17C2.42 16.92 2 17.94 2 19V21M13 7C13 9.21 11.21 11 9 11C6.79 11 5 9.21 5 7C5 4.79 6.79 3 9 3C11.21 3 13 4.79 13 7Z"/>
+                </svg>
+                <span style="font-size: 16px; font-weight: 500; color: #121212;">${venue.capacity.toLocaleString()} Kursi</span>
+            </div>
+
+            ${(venue.can_access_management) ? `
+            <div style="display: flex; gap: 8px; align-self: flex-start; position: absolute; bottom: 72px; left: 24px;">
+                <a href="${venueEditUrls[venue.id]}" 
+                   class="text-xs font-semibold px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 no-underline"
+                   onclick="event.stopPropagation();">
+                    Edit
+                </a>
+                
+                <form id="delete-form-${venue.id}" method="POST" action="${venueDeleteUrls[venue.id]}" style="display: inline-block;">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrftoken}">
+                    <button type="submit" 
+                            class="text-xs font-semibold px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 no-underline"
+                            onclick="event.preventDefault(); event.stopPropagation(); if (confirm('Yakin ingin menghapus ${venue.stadium}?')) { document.getElementById('delete-form-${venue.id}').submit(); }">
+                        Delete
+                    </button>
+                </form>
+            </div>
+            ` : ''}
+
+            <div style="align-self: stretch; justify-content: space-between; display: flex; align-items: center; margin-top: auto;"> 
+                <span style="color: #0062FF; font-size: 28px; font-weight: 700;">Rp ${price}</span>
+                <button style="height: 48px; padding: 0 24px; background: #0062FF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;">Sewa</button>
+            </div>
+        `;
+        resultsContainer.appendChild(card);
+    }
+
+        displayedCount += venuesSlice.length;
+        if (displayedCount >= venuesToShow.length) {
+            document.getElementById('moreBtn').style.display = 'none';
+        }
+    }
+
+    displayVenues(0, 18);
+
+    document.getElementById('moreBtn').addEventListener('click', () => {
+        displayVenues(displayedCount, displayedCount + 18);
+    });
+
+    for (const location of locations) {
+        const option = document.createElement('div');
+        option.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer font-poppins text-gray-700';
+        option.textContent = `${location.city}, ${location.country}`;
+        option.addEventListener('click', () => {
+            lokasiText.textContent = option.textContent;
+            lokasiDropdown.classList.add('hidden');
+            lokasiArrow.classList.remove('rotate-180');
+        });
+        lokasiOptions.appendChild(option);
+    }
+
+    for (const capacity of capacities) {
+        const option = document.createElement('div');
+        option.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer font-poppins text-gray-700';
+        option.textContent = capacity.label;
+        option.dataset.min = capacity.min;
+        option.dataset.max = capacity.max;
+        option.addEventListener('click', () => {
+            kapasitasText.textContent = option.textContent;
+            kapasitasDropdown.classList.add('hidden');
+            kapasitasArrow.classList.remove('rotate-180');
+        });
+        kapasitasOptions.appendChild(option);
+    }
+
+    lokasiBtn.addEventListener('click', () => {
+        lokasiDropdown.classList.toggle('hidden');
+        lokasiArrow.classList.toggle('rotate-180');
+    });
+
+    kapasitasBtn.addEventListener('click', () => {
+        kapasitasDropdown.classList.toggle('hidden');
+        kapasitasArrow.classList.toggle('rotate-180');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!lokasiBtn.contains(event.target) && !lokasiDropdown.contains(event.target)) {
+            lokasiDropdown.classList.add('hidden');
+            lokasiArrow.classList.remove('rotate-180');
+        }
+        if (!kapasitasBtn.contains(event.target) && !kapasitasDropdown.contains(event.target)) {
+            kapasitasDropdown.classList.add('hidden');
+            kapasitasArrow.classList.remove('rotate-180');
+        }
+    });
+
+    sortBtn.addEventListener('click', () => {
+        if (sortOrder === 'lowToHigh') {
+            sortOrder = 'highToLow';
+            sortText.textContent = 'Harga Tertinggi';
+            sortText.dataset.layer = 'Harga Tertinggi';
+            sortArrow.innerHTML = '<path d="M6 15L12 9L18 15" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+            sortBtn.style.background = '#E6F0FF';
+        } else {
+            sortOrder = 'lowToHigh';
+            sortText.textContent = 'Harga Terendah';
+            sortText.dataset.layer = 'Harga Terendah';
+            sortArrow.innerHTML = '<path d="M6 9L12 15L18 9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+            sortBtn.style.background = '#E6F0FF';
+        }
+        performSearch();
+    });
+
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const selectedLocation = lokasiText.textContent;
+        const selectedCapacity = kapasitasText.textContent;
+        let filteredVenues = [...venues];
+
+        if (searchTerm) {
+            filteredVenues = filteredVenues.filter(venue => 
+                venue.stadium.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        if (selectedLocation !== 'Pilih Kota') {
+            const [city, country] = selectedLocation.split(', ').map(str => str.trim());
+            filteredVenues = filteredVenues.filter(venue => 
+                venue.city === city && venue.country === country
+            );
+        }
+
+        if (selectedCapacity !== 'Pilih') {
+            const selectedOption = capacities.find(cap => cap.label === selectedCapacity);
+            if (selectedOption) {
+                filteredVenues = filteredVenues.filter(venue => 
+                    venue.capacity >= selectedOption.min && venue.capacity <= selectedOption.max
+                );
+            }
+        }
+
+        if (sortOrder === 'lowToHigh') {
+            filteredVenues.sort((a, b) => a.fixedPrice - b.fixedPrice);
+        } else if (sortOrder === 'highToLow') {
+            filteredVenues.sort((a, b) => b.fixedPrice - a.fixedPrice);
+        }
+
+        resultsContainer.innerHTML = '';
+        displayedCount = 0;
+        document.getElementById('moreBtn').style.display = 'block';
+
+        displayVenues(0, 18, filteredVenues);
+
+        if (filteredVenues.length === 0) {
+            resultsContainer.innerHTML = '<p class="text-gray-500 font-poppins text-center col-span-full">Tidak ada stadion yang sesuai dengan kriteria.</p>';
+            document.getElementById('moreBtn').style.display = 'none';
+        }
+        else if (filteredVenues.length < 18) {
+            document.getElementById('moreBtn').style.display = 'none';
+        }
+    }
+
+    cariBtn.addEventListener('click', performSearch);
+
+    searchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
+        }
+    });
+</script>
 {% endblock %}
