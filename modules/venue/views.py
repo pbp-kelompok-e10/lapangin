@@ -1,59 +1,168 @@
-from django.shortcuts import render
-from django.db.models import Q
+import json
+import csv
+import random
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect, JsonResponse
+from django.core.files.storage import FileSystemStorage
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 from modules.venue.models import Venue
+from modules.venue.forms import VenueForm
+from .decorators import venue_access_required
+from .decorators import is_venue_provider_or_admin
+from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 
 def search_venue(request):
-    query = request.GET.get('q', '')  # Kata kunci pencarian (misalnya kota atau stadion)
-    capacity = request.GET.get('capacity', '')  # Filter kapasitas
-    max_price = request.GET.get('max_price', '')  # Filter harga
+    locations = Venue.objects.values('city', 'country').distinct().order_by('city')
+    
+    context = {
+        'locations_json': json.dumps(list(locations)),
+        
+        'can_add_venue': request.user.is_authenticated
+    }
+    return render(request, 'venue/search_venue.html', context)
 
-    # Ambil semua venue dari database
-    venues = Venue.objects.all()
-
-    # Filter berdasarkan kota atau nama stadion
-    if query:
-        venues = venues.filter(
-            Q(city__icontains=query) | Q(name__icontains=query)
-        )
-
-    # Filter berdasarkan kapasitas
-    if capacity:
-        try:
-            capacity = int(capacity.replace(',', ''))  # Hapus koma jika ada
-            venues = venues.filter(capacity__gte=capacity)
-        except ValueError:
-            pass
-
-    # Filter berdasarkan harga
-    if max_price:
-        try:
-            max_price = float(max_price)
-            venues = venues.filter(price__lte=max_price)
-        except ValueError:
-            pass
-
-    # Format data untuk template
-    venues_data = [
-        {
-            "name": venue.name,
-            "location": f"{venue.city}, {venue.country}",
-            "rating": venue.rating if hasattr(venue, 'rating') else 4.0,  # Default rating
-            "capacity": f"{venue.capacity:,} Kursi",  # Format dengan koma
-            "price": float(venue.price) if venue.price is not None else 0.00,  # Handle NULL
-            "image": venue.image if hasattr(venue, 'image') else "img/default_venue.jpg",  # Default image
-            "description": venue.description
-        }
-        for venue in venues
+def venue_detail(request, venue_id):
+    venues = [
+        {'id': v.id, 'stadium': v.name, 'city': v.city, 'country': v.country, 'capacity': v.capacity, 'price': v.price, 'thumbnail': v.thumbnail}
+        for v in Venue.objects.all()
     ]
+    venue = next((v for v in venues if v['id'] == venue_id), None)
+    if venue:
+        return render(request, 'venue/venue_detail.html', {'selected_venue': venue, 'venues': venues})
+    else:
+        return render(request, 'venue/venue_detail.html', {'error': 'Stadion tidak ditemukan'}, status=404)
 
-    return render(request, "venue/search_venue.html", {
-        "venues": venues_data,
-        "query": query,
-        "capacity": capacity,
-        "max_price": max_price
+@login_required
+@venue_access_required
+def create_venue(request):
+    form = VenueForm(request.POST or None)
+    
+    if request.method == 'POST':
+        if form.is_valid():
+            User = get_user_model()
+            venue = form.save(commit=False)
+            
+            venue.owner = request.user
+            venue.save()
+            
+            messages.success(request, 'Venue berhasil ditambahkan!')
+            return redirect('venue:search_venue')
+        else:
+            messages.error(request, 'Gagal menambahkan Venue. Silakan periksa kembali data Anda.')
+
+    context = {
+        'form': form
+    }
+    return render(request, 'venue/create_venue.html', context)
+
+
+@login_required
+@venue_access_required
+def edit_venue(request, venue_id):
+    """
+    Menangani pengeditan Venue yang sudah ada. Hanya pemilik/admin yang bisa mengedit.
+    """
+    venue = get_object_or_404(Venue, pk=venue_id)
+    
+    if not (request.user.is_staff or venue.owner == request.user):
+        messages.error(request, 'Anda tidak memiliki izin untuk mengedit venue ini.')
+        return redirect('venue:search_venue')
+
+    form = VenueForm(request.POST or None, instance=venue)
+    
+    if form.is_valid() and request.method == 'POST':
+        form.save()
+        messages.success(request, 'Venue berhasil diupdate.')
+        return redirect('venue:search_venue')
+
+    context = {
+        'form': form,
+        'venue': venue
+    }
+
+    return render(request, "venue/edit_venue.html", context)
+
+
+@login_required
+@venue_access_required
+def delete_venue(request, venue_id):
+    venue = get_object_or_404(Venue, pk=venue_id)
+    
+    if not (request.user.is_staff or venue.owner == request.user):
+        messages.error(request, 'Anda tidak memiliki izin untuk menghapus venue ini.')
+        return redirect('venue:search_venue')
+    
+    if request.method == 'POST':
+        venue.delete()
+        messages.success(request, 'Venue berhasil dihapus.')
+        return redirect('venue:search_venue')
+    
+    messages.error(request, 'Permintaan hapus tidak valid.')
+    return redirect('venue:search_venue')
+
+def search_venues_api(request):
+    venues_list = Venue.objects.select_related('owner').all()
+    # Filtering
+    search_term = request.GET.get('search', '').strip()
+    if search_term:
+        venues_list = venues_list.filter(stadium__icontains=search_term)
+
+    city = request.GET.get('city', '').strip()
+    if city:
+        venues_list = venues_list.filter(city=city)
+        
+    # Filter Kapasitas
+    try:
+        capacity_min = int(request.GET.get('capacity_min', 0))
+        if capacity_min > 0:
+            venues_list = venues_list.filter(capacity__gte=capacity_min)
+    except (ValueError, TypeError):
+        pass
+
+    try:
+        capacity_max = int(request.GET.get('capacity_max', 0))
+        if capacity_max > 0:
+            venues_list = venues_list.filter(capacity__lte=capacity_max)
+    except (ValueError, TypeError):
+        pass
+
+    # Sorting
+    sort_order = request.GET.get('sort', 'lowToHigh')
+    if sort_order == 'highToLow':
+        venues_list = venues_list.order_by('-price')
+    else:
+        venues_list = venues_list.order_by('price')
+
+    paginator = Paginator(venues_list, 18) # 18 item per halaman
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    venues_data = []
+    for venue in page_obj:
+        venues_data.append({
+            'id': venue.id,
+            'stadium': venue.name,
+            'city': venue.city,
+            'country': venue.country,
+            'capacity': venue.capacity,
+            'price': venue.price,
+            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            
+            'can_access_management': (request.user.is_authenticated and
+                                    (request.user.is_superuser or request.user == venue.owner)),
+            
+            'url_detail': reverse('venue:venue_detail', args=[venue.id]),
+            'url_edit': reverse('venue:edit_venue', args=[venue.id]),
+            'url_delete': reverse('venue:delete_venue', args=[venue.id]),
+        })
+
+    return JsonResponse({
+        'venues': venues_data,
+        'has_next_page': page_obj.has_next(),
+        'current_page': page_obj.number,
+        'total_pages': paginator.num_pages,
     })
-
-def book_venue(request, venue_id):
-    # Placeholder for booking functionality
-    venue = Venue.objects.get(id=venue_id)
-    return render(request, "venue/book_venue.html", {"venue_id": venue_id, "venue_name": venue.name})
