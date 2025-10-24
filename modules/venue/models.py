@@ -29,7 +29,7 @@ class Venue(models.Model):
     country = models.CharField(max_length=100)  # Country
     price = models.DecimalField(max_digits=10, decimal_places=2)
     thumbnail = models.TextField(default='https://via.placeholder.com/300x200', blank=True)  # For Google image URLs
-    description = models.TextField(default='', blank=True)    
+    description = models.TextField(default='', blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # Tambahkan ini
 
     def __str__(self):

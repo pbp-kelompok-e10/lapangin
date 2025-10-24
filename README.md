@@ -1,11 +1,11 @@
 # TUGAS KELOMPOK PBP E
 # KELOMPOK E10
 ### ANGGOTA KELOMPOK
-Prasetya Surya Syahputra
-Rheina Adinda Morani Sinurat 2406435881
-Muhammad Fadhlurrohman Pasya 2406411830
-Angga Ziaurrohchman 2406495943
-Muhammad Tristan Malik Anbiya 2406409196
+- Prasetya Surya Syahputra
+- Rheina Adinda Morani Sinurat 2406435881
+- Muhammad Fadhlurrohman Pasya 2406411830
+- Angga Ziaurrohchman 2406495943
+- Muhammad Tristan Malik Anbiya 2406409196
 
 ## Aplikasi
 Aplikasi Lapangin dirancang untuk membantu klub atau panitia pertandingan untuk mencari stadion yang sesuai untuk menggelar pertandingan. Platform ini menyediakan informasi lengkap seputar lokasi, kapasitas,dan pengelola stadion di berbagai daerah, serta memungkinkan pengguna menyewa langsung pada aplikasi.

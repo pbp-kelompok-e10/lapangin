@@ -4,10 +4,12 @@ import pandas as pd
 import os
 from django.conf import settings
 import sys
-
 # Inisialisasi Django
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 2. Add the project root directory to the Python path
 sys.path.append(project_root)
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lapangin.settings')
 django.setup()
 
@@ -24,8 +26,7 @@ df = df.fillna({
     'Confederation': '',
     'HomeTeams': '',
     'IOC': '',
-    'Description': '',
-    'Thumbnail': ''
+    'Description': ''
 })
 
 def generate_fixed_price():
@@ -42,7 +43,7 @@ for index, row in df.iterrows():
         home_teams=row['HomeTeams'],
         capacity=row['Capacity'],
         country=row['Country'],
-        price=price, 
+        price=price,
         thumbnail=row['Thumbnail'],
         description=row['Description']
     ))

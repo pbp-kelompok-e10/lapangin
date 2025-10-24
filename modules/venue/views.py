@@ -9,8 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from modules.venue.models import Venue
-from modules.venue.forms import VenueForm 
-from .decorators import venue_access_required 
+from modules.venue.forms import VenueForm
+from .decorators import venue_access_required
 from .decorators import is_venue_provider_or_admin
 from django.contrib.auth import get_user_model
 
@@ -27,11 +27,11 @@ def search_venue(request):
         {'value': '50001+', 'label': '50.001+ Kursi'},
     ]
     
-    query = request.GET.get('q', '')  
-    capacity = request.GET.get('capacity', '')  
-    max_price = request.GET.get('max_price', '') 
-    location_filter = request.GET.get('location', '')  
-    capacity_filter = request.GET.get('capacity', '') 
+    query = request.GET.get('q', '')
+    capacity = request.GET.get('capacity', '')
+    max_price = request.GET.get('max_price', '')
+    location_filter = request.GET.get('location', '')
+    capacity_filter = request.GET.get('capacity', '')
 
     
 
@@ -45,7 +45,7 @@ def search_venue(request):
             'country': venue.country,
             'capacity': venue.capacity,
             'thumbnail': venue.thumbnail,
-            'price': float(venue.price),  
+            'price': float(venue.price),
             'description': venue.description if venue.description else 'Stadion modern dengan fasilitas lengkap untuk berbagai acara olahraga.',
             'owner_id': str(venue.owner.id) if venue.owner else '',
             'can_access_management': is_venue_provider_or_admin(request.user),
@@ -63,15 +63,15 @@ def search_venue(request):
         'max_price': max_price,
         'selected_location': location_filter,
         'selected_capacity': capacity_filter,
-        'locations': locations, 
-        'capacity_ranges': capacity_ranges, 
-        'user': request.user  
+        'locations': locations,
+        'capacity_ranges': capacity_ranges,
+        'user': request.user
     })
 
 def venue_detail(request, venue_id):
     venues = [
         {'id': v.id, 'stadium': v.name, 'city': v.city, 'country': v.country, 'capacity': v.capacity, 'price': v.price, 'thumbnail': v.thumbnail}
-        for v in Venue.objects.all() 
+        for v in Venue.objects.all()
     ]
     venue = next((v for v in venues if v['id'] == venue_id), None)
     if venue:
@@ -94,7 +94,7 @@ def create_venue(request):
             User = get_user_model()
             venue = form.save(commit=False)
             
-            venue.owner = request.user 
+            venue.owner = request.user
             venue.save()
             
             messages.success(request, 'Venue berhasil ditambahkan!')

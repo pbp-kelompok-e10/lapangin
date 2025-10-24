@@ -4,20 +4,20 @@
 
             <div class="flex items-center">
                 <a href="{% url 'main:show_main' %}" class="flex-shrink-0 flex items-center">
-                    <svg class="h-8 md:h-12" viewBox="0 0 40 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="40" height="53" viewBox="0 0 40 53" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1.65506 27.875C4.65522 36.375 14.059 46.2757 19.9051 52.25C31.1501 39.6013 36.2565 33.4097 38.03 27.875C39.9526 21.875 40.4868 17.715 38.03 11.5C34.0717 4.5 30.059 0.750559 19.9051 0C9.98728 0.990796 5.02994 4.5 1.65506 11.375C1.65506 11.375 -1.3451 19.375 1.65506 27.875Z" fill="#0062FF"/>
                         <path d="M22.8217 10.75H17.4467C15.4443 14.1217 13.9013 15.7428 10.3217 18.125V23.5C13.8004 25.2446 15.3383 26.6351 17.0717 30.125H22.8217C24.7144 26.808 26.3083 25.4097 29.8217 23.5V18.125C26.3202 15.9146 24.8234 14.2686 22.8217 10.75Z" fill="#F9F9F9"/>
                         <path d="M17.0717 24.25L15.6967 18.625L19.9467 15.5L24.1967 18.625L22.8217 24.25H17.0717Z" fill="#0062FF"/>
-                        <circle cx="19.9467" cy="20.375" r="12.875" stroke="white" stroke-width="2"/>
+                        <circle cx="19.9467" cy="20.375" r="12.875" stroke="white" stroke-width="2" />
                     </svg>
                     <span class="ml-3 text-xl lg:text-5xl font-bold text-[#0062FF]">LAPANG<span class="text-[#99FF00]">IN</span></span>
                 </a>
             </div>
 
             <div class="hidden md:flex space-x-[60px] lg:space-x-[70px] flex items-center">
-                <a href="{% url 'main:about' %}" class="text-[#737373] text-sm hover:text-gray-900 inline-flex items-center font-bold lg:text-base">Tentang</a>
-                <a href="#" class="text-[#737373] text-sm inline-flex items-center font-bold lg:text-base">Sewa Stadion</a>
-                <a href="{% url 'faq:faq_list' %}" class="text-[#737373] text-sm lg:text-base font-bold">FAQ</a>
+                <a href="" id="about-btn" class="text-[#737373] text-sm hover:text-gray-900 inline-flex items-center font-bold lg:text-base">Tentang</a>
+                <a href="" id="search-venue-btn" class="text-[#737373] text-sm inline-flex items-center font-bold lg:text-base">Sewa Stadion</a>
+                <a href="" id="faq-btn" class="text-[#737373] text-sm lg:text-base font-bold">FAQ</a>
             </div>
 
             <div class="flex items-center">
@@ -55,10 +55,15 @@
     const LOGIN_LINK = "{% url 'accounts:login' %}";
     const REGISTER_LINK = "{% url 'accounts:register' %}";
     const LOGOUT_LINK = "{% url 'accounts:logout' %}"
-    const PAGE_DATA_API_ENDPOINT = "{% url 'accounts:get_page_data' %}"
+    const PAGE_DATA_API_ENDPOINT = "{% url 'accounts:get_page_data' %}";
+    const FAQ_LINK = "{% url 'faq:faq_list' %}";
+    const ABOUT_LINK = "{% url 'main:about' %}";
+    const SEARCH_VENUES_LINK= "{% url 'venue:search_venue' %}";
     
     const nav_auth = document.getElementById('nav-auth');
     const nav_auth_mobile = document.getElementById("nav-auth-mobile");
+
+
 
     async function initializeNavbar() {
         try {
@@ -192,12 +197,22 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         initializeNavbar();
+        const about_btn = document.getElementById("about-btn");
+        const search_btn = document.getElementById("search-venue-btn");
+        const faq_btn = document.getElementById("faq-btn");
+
+        about_btn.href = ABOUT_LINK;
+        search_btn.href = SEARCH_VENUES_LINK;
+        faq_btn.href = FAQ_LINK;
+        
         highlightActiveLink();
 
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         const openIcon = document.getElementById('hamburger-open');
         const closeIcon = document.getElementById('hamburger-close');
+
+
 
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
