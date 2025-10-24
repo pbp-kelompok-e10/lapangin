@@ -73,6 +73,8 @@ def get_page_data(request):
             'name': 'Prasetya Surya Syahputra',
             'npm': '2406398381',
             'class': 'PBP E',
+            'is_staff': request.user.is_staff,
+            'is_superuser': request.user.is_superuser,
         })
     else:
         return JsonResponse({'is_authenticated': False})

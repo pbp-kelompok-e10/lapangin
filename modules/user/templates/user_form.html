@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if mode == 'create' %}Create User{% else %}Edit User{% endif %} - Lapangin{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="pt-20">
+    <!-- Main Content -->
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{% url 'user:user_list' %}" class="inline-flex items-center text-[#0062FF] hover:text-blue-700 font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to User List
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    {% if mode == 'create' %}
+                        Create New User
+                    {% else %}
+                        Edit User: {{ user_data.username }}
+                    {% endif %}
+                </h1>
+                <p class="text-gray-600 mt-2">
+                    {% if mode == 'create' %}
+                        Fill in the information below to create a new user account
+                    {% else %}
+                        Update the user information below
+                    {% endif %}
+                </p>
+            </div>
+
+            <form method="POST" id="userForm" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Error Display -->
+                <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Error!</strong>
+                    <span class="block sm:inline" id="error-text"></span>
+                </div>
+
+                <!-- Account Information Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Account Information</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Username -->
+                        <div>
+                            <label for="id_username" class="block text-sm font-medium text-gray-700 mb-2">
+                                Username <span class="text-red-500">*</span>
+                            </label>
+                            {{ user_form.username }}
+                        </div>
+
+                        <!-- Full Name -->
+                        <div>
+                            <label for="id_full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name
+                            </label>
+                            {{ user_form.full_name }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                        {% if mode == 'create' %}
+                            Password <span class="text-red-500">*</span>
+                        {% else %}
+                            Change Password (leave blank to keep current)
+                        {% endif %}
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Password -->
+                        <div>
+                            <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Password
+                            </label>
+                            {{ user_form.password }}
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div>
+                            <label for="id_confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Confirm Password
+                            </label>
+                            {{ user_form.confirm_password }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Personal Information</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Phone -->
+                        <div>
+                            <label for="id_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                Phone Number
+                            </label>
+                            {{ profile_form.phone }}
+                        </div>
+
+                        <!-- Address -->
+                        <div>
+                            <label for="id_address" class="block text-sm font-medium text-gray-700 mb-2">
+                                Address
+                            </label>
+                            {{ profile_form.address }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Permissions & Status</h3>
+                    
+                    <div class="space-y-3">
+                        <!-- Is Staff -->
+                        <div class="flex items-center">
+                            {{ user_form.is_staff }}
+                            <label for="id_is_staff" class="ml-2 text-sm text-gray-700">
+                                Staff status (Can access admin panel)
+                            </label>
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="flex items-center">
+                            {{ user_form.is_active }}
+                            <label for="id_is_active" class="ml-2 text-sm text-gray-700">
+                                Active (User can log in)
+                            </label>
+                        </div>
+
+                        <!-- Profile Is Active -->
+                        <div class="flex items-center">
+                            {{ profile_form.is_active }}
+                            <label for="id_is_active" class="ml-2 text-sm text-gray-700">
+                                Profile Active
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-3 pt-6 border-t">
+                    <a href="{% url 'user:user_list' %}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                        Cancel
+                    </a>
+                    <button 
+                        type="submit" 
+                        id="submitBtn"
+                        class="px-6 py-2 bg-[#0062FF] text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                        {% if mode == 'create' %}Create User{% else %}Update User{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('userForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const button = document.getElementById('submitBtn');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const originalText = button.textContent;
+    
+    // Hide previous errors
+    errorMessage.classList.add('hidden');
+    
+    // Disable button and show loading
+    button.disabled = true;
+    button.textContent = '{% if mode == "create" %}Creating...{% else %}Updating...{% endif %}';
+    button.classList.add('opacity-75');
+    
+    try {
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showToast('Success', data.message, 'success');
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 1000);
+        } else {
+            // Show errors
+            let errorMsg = 'Form validation failed. ';
+            if (data.errors) {
+                const errors = [];
+                for (const field in data.errors) {
+                    const fieldErrors = data.errors[field];
+                    if (Array.isArray(fieldErrors)) {
+                        fieldErrors.forEach(err => {
+                            if (typeof err === 'object' && err.message) {
+                                errors.push(err.message);
+                            } else {
+                                errors.push(String(err));
+                            }
+                        });
+                    }
+                }
+                if (errors.length > 0) {
+                    errorMsg += errors.join(' ');
+                }
+            }
+            
+            errorText.textContent = errorMsg;
+            errorMessage.classList.remove('hidden');
+            showToast('Error', 'Please fix the errors', 'error');
+            
+            button.disabled = false;
+            button.textContent = originalText;
+            button.classList.remove('opacity-75');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        errorText.textContent = 'Something went wrong. Please try again.';
+        errorMessage.classList.remove('hidden');
+        showToast('Error', 'Something went wrong. Please try again.', 'error');
+        
+        button.disabled = false;
+        button.textContent = originalText;
+        button.classList.remove('opacity-75');
+    }
+});
+</script>
+
+{% endblock %}

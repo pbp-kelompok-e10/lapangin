@@ -73,6 +73,8 @@
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         errorContainer.innerHTML = '';
+        errorContainer.classList.add("hidden");
+
         const formData = new FormData(loginForm);
 
         try {
@@ -85,18 +87,27 @@
             const data = await response.json();
 
             if (response.ok) {
-                showToast("Login berhasil", "", "success");
+                showToast("Login berhasil", "", "success"); 
                 setTimeout(() => {
                     window.location.href = data.redirect_url;
                 }, 500)
             } else if (data.errors) {
+                
+                errorContainer.classList.remove("hidden");
                 errors = data.errors;
                 for (const e in errors) {
                     errors[e].forEach(error => {
                         const errorDiv = document.createElement('div');
-                        errorDiv.className = 'px-4 py-3 text-sm border bg-red-50 border-red-200 text-red-700 mb-2';
+                        errorDiv.className = 'px-4 py-3 text-sm border bg-red-50 border-red-200 text-red-700 mb-2 rounded-lg'; 
+                        
                         let fieldName = e.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        errorDiv.innerHTML = fieldName === '__all__' ? `${error.message}` : `<strong>${fieldName}:</strong> ${error.message}`;
+                        
+                        if (fieldName === '__all__') {
+                            errorDiv.innerHTML = `${error.message}`;
+                        } else {
+                            errorDiv.innerHTML = `<strong>${fieldName}:</strong> ${error.message}`;
+                        }
+                        
                         errorContainer.appendChild(errorDiv);
                     });
                 }
@@ -104,6 +115,9 @@
 
         } catch (error) {
             console.error('Error: ', error);
+            // Tampilkan error jaringan jika perlu
+            errorContainer.classList.remove("hidden");
+            errorContainer.innerHTML = `<div class="px-4 py-3 text-sm border bg-red-50 border-red-200 text-red-700 mb-2 rounded-lg">Terjadi kesalahan. Silakan coba lagi.</div>`;
         }
     })
 
