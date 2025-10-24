@@ -13,8 +13,8 @@ import json
 def is_admin(user):
     return user.is_staff or user.is_superuser
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 def user_list(request):
     """Display list of all users"""
     search_query = request.GET.get('search', '')
@@ -53,8 +53,8 @@ def user_list(request):
     
     return render(request, 'user_list.html', context)
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 def user_detail(request, user_id):
     """View details of a specific user"""
     user = get_object_or_404(User, id=user_id)
@@ -67,8 +67,8 @@ def user_detail(request, user_id):
     
     return render(request, 'user_detail.html', context)
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 def user_create(request):
     """Create a new user"""
     if request.method == 'POST':
@@ -116,8 +116,8 @@ def user_create(request):
     
     return render(request, 'user_form.html', context)
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 def user_edit(request, user_id):
     """Edit existing user"""
     user = get_object_or_404(User, id=user_id)
@@ -167,8 +167,8 @@ def user_edit(request, user_id):
     
     return render(request, 'user_form.html', context)
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def user_delete(request, user_id):
     """Delete a user"""
@@ -196,8 +196,8 @@ def user_delete(request, user_id):
         'message': 'Invalid request method'
     }, status=400)
 
-#@login_required
-#@user_passes_test(is_admin)
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def user_toggle_status(request, user_id):
     """Toggle user active status"""
