@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     'modules.user',
     'modules.venue',
     'modules.booking',
-    'modules.review',
     'modules.faq',
     'modules.main',
     'modules.accounts',
+    'modules.review.apps.ReviewConfig'
 ]
 
 MIDDLEWARE = [

@@ -7,7 +7,7 @@ class User(AbstractUser):  # Jika belum extend, tambahkan ini
     is_venue_provider = models.BooleanField(default=False)
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='venue_user_set', # Nama yang unik untuk Group
+        related_name='venue_user_set',
         blank=True,
         help_text=('The groups this user belongs to.'),
         related_query_name="venue_user",
@@ -15,7 +15,7 @@ class User(AbstractUser):  # Jika belum extend, tambahkan ini
     
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='venue_user_permissions_set', # Nama yang unik untuk Permission
+        related_name='venue_user_permissions_set',
         blank=True,
         help_text='Specific permissions for this user.',
         related_query_name='venue_user',
@@ -31,6 +31,7 @@ class Venue(models.Model):
     thumbnail = models.TextField(default='https://via.placeholder.com/300x200', blank=True)  # For Google image URLs
     description = models.TextField(default='', blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # Tambahkan ini
+    rating = models.PositiveIntegerField(default = 0);
 
     def __str__(self):
         return self.name

@@ -14,6 +14,7 @@ from .decorators import venue_access_required
 from .decorators import is_venue_provider_or_admin
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.views.decorators.http import require_POST
 
 def search_venue(request):
     locations = Venue.objects.values('city', 'country').distinct().order_by('city')
@@ -26,90 +27,105 @@ def search_venue(request):
     return render(request, 'venue/search_venue.html', context)
 
 def venue_detail(request, venue_id):
-    venues = [
-        {'id': v.id, 'stadium': v.name, 'city': v.city, 'country': v.country, 'capacity': v.capacity, 'price': v.price, 'thumbnail': v.thumbnail}
-        for v in Venue.objects.all()
-    ]
-    venue = next((v for v in venues if v['id'] == venue_id), None)
-    if venue:
-        return render(request, 'venue/venue_detail.html', {'selected_venue': venue, 'venues': venues})
-    else:
-        return render(request, 'venue/venue_detail.html', {'error': 'Stadion tidak ditemukan'}, status=404)
+    try:
+        venue_exists = Venue.objects.filter(pk=int(venue_id)).exists()
+        if not venue_exists:
+            return render(request, 'venue/venue_not_found.html', {'venue_id': venue_id}, status=404)
+
+        is_admin = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
+
+        context = {
+            'venue_id': venue_id,
+            'is_admin': is_admin
+        }
+        return render(request, 'venue/venue_detail.html', context)
+    except (ValueError, TypeError):
+        return render(request, 'venue/venue_not_found.html', {'venue_id': 'invalid'}, status=400)
+
+def get_venue_detail_api(request, venue_id):
+    try:
+        venue = Venue.objects.get(pk=venue_id)
+        venue_data = {
+            'id': venue.id,
+            'stadium': venue.name,
+            'city': venue.city,
+            'country': venue.country,
+            'capacity': venue.capacity,
+            'price': venue.price,
+            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            'rating': venue.rating,
+            'description': venue.description or "Deskripsi tidak tersedia.",
+        }
+        return JsonResponse({'success': True, 'venue': venue_data})
+    except Venue.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Venue tidak ditemukan.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 @login_required
 @venue_access_required
+@require_POST
 def create_venue(request):
-    form = VenueForm(request.POST or None)
+    form = VenueForm(request.POST)
     
-    if request.method == 'POST':
-        if form.is_valid():
-            User = get_user_model()
-            venue = form.save(commit=False)
-            
-            venue.owner = request.user
-            venue.save()
-            
-            messages.success(request, 'Venue berhasil ditambahkan!')
-            return redirect('venue:search_venue')
-        else:
-            messages.error(request, 'Gagal menambahkan Venue. Silakan periksa kembali data Anda.')
-
-    context = {
-        'form': form
-    }
-    return render(request, 'venue/create_venue.html', context)
-
+    if form.is_valid():
+        venue = form.save(commit=False)
+        venue.owner = request.user
+        venue.save()
+        return JsonResponse({'success': True, 'message': 'Venue berhasil ditambahkan.'})
+    else:
+        return JsonResponse({'success': False, 'errors': form.errors.as_json()}, status=400)
 
 @login_required
 @venue_access_required
 def edit_venue(request, venue_id):
-    """
-    Menangani pengeditan Venue yang sudah ada. Hanya pemilik/admin yang bisa mengedit.
-    """
     venue = get_object_or_404(Venue, pk=venue_id)
+
+    if not (request.user.is_superuser or venue.owner == request.user):
+        return JsonResponse({'success': False, 'message': 'Anda tidak punya izin.'}, status=403)
+
+    if request.method == 'POST':
+        form = VenueForm(request.POST, instance=venue)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True, 'message': 'Venue berhasil diupdate.'})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors.as_json()}, status=400)
     
-    if not (request.user.is_staff or venue.owner == request.user):
-        messages.error(request, 'Anda tidak memiliki izin untuk mengedit venue ini.')
-        return redirect('venue:search_venue')
-
-    form = VenueForm(request.POST or None, instance=venue)
-    
-    if form.is_valid() and request.method == 'POST':
-        form.save()
-        messages.success(request, 'Venue berhasil diupdate.')
-        return redirect('venue:search_venue')
-
-    context = {
-        'form': form,
-        'venue': venue
-    }
-
-    return render(request, "venue/edit_venue.html", context)
-
+    else:
+        venue_data = {
+            'stadium': venue.name,
+            'city': venue.city,
+            'country': venue.country,
+            'capacity': venue.capacity,
+            'price': venue.price,
+            'thumbnail': venue.thumbnail,
+            'description': venue.description,
+        }
+        return JsonResponse({'success': True, 'data': venue_data})
 
 @login_required
 @venue_access_required
+@require_POST
 def delete_venue(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
     
-    if not (request.user.is_staff or venue.owner == request.user):
-        messages.error(request, 'Anda tidak memiliki izin untuk menghapus venue ini.')
-        return redirect('venue:search_venue')
+    if not (request.user.is_superuser or venue.owner == request.user):
+        return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
     
-    if request.method == 'POST':
+    try:
+        venue_name = venue.name
         venue.delete()
-        messages.success(request, 'Venue berhasil dihapus.')
-        return redirect('venue:search_venue')
-    
-    messages.error(request, 'Permintaan hapus tidak valid.')
-    return redirect('venue:search_venue')
+        return JsonResponse({'success': True, 'message': f'Venue "{venue_name}" berhasil dihapus.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 def search_venues_api(request):
     venues_list = Venue.objects.select_related('owner').all()
     # Filtering
     search_term = request.GET.get('search', '').strip()
     if search_term:
-        venues_list = venues_list.filter(stadium__icontains=search_term)
+        venues_list = venues_list.filter(name__icontains=search_term)
 
     city = request.GET.get('city', '').strip()
     if city:
@@ -151,7 +167,7 @@ def search_venues_api(request):
             'capacity': venue.capacity,
             'price': venue.price,
             'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
-            
+            'rating': venue.rating,
             'can_access_management': (request.user.is_authenticated and
                                     (request.user.is_superuser or request.user == venue.owner)),
             

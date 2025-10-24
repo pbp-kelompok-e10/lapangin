@@ -6,7 +6,7 @@ from . import views
 
 app_name = 'venue'
 
-from modules.venue.views import search_venue, venue_detail
+from modules.venue.views import venue_detail, get_venue_detail_api, search_venue
 
 urlpatterns = [
     path('', search_venue, name='search_venue'),
@@ -15,6 +15,5 @@ urlpatterns = [
     path('delete/<int:venue_id>/', views.delete_venue, name='delete_venue'),
     path('create/', views.create_venue, name='create_venue'),
     path('api/search/', views.search_venues_api, name='search_venues_api'),
-    # path('import/', views.import_venues, name='import_venues'),
-
+    path('api/detail/<int:venue_id>/', get_venue_detail_api, name='get_venue_detail_api'),
 ]
