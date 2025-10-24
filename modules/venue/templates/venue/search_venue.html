@@ -7,9 +7,7 @@
 <div class="bg-[#FFFEF9] text-gray-800">
     {% include "navbar.html" %}
 
-    <!-- Filter -->
     <div class="w-full max-w-[1280px] mx-auto mt-40 bg-white shadow-md rounded-[100px] flex flex-col md:flex-row justify-between items-center gap-6 px-8 py-6">
-        <!-- Input cari stadion -->
         <div class="w-full md:w-[380px]">
             <div class="bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
                 <input 
@@ -24,7 +22,6 @@
             </div>
         </div>
 
-        <!-- Lokasi Dropdown -->
         <div class="relative">
             <button id="lokasiBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
@@ -48,7 +45,6 @@
             </div>
         </div>
 
-        <!-- Kapasitas Dropdown -->
         <div class="relative">
             <button id="kapasitasBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
@@ -69,7 +65,6 @@
             </div>
         </div>
 
-        <!-- Tombol Cari -->
         <button id="cariBtn" class="flex items-center justify-center gap-2 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition w-full md:w-auto">
             <span>Cari</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +73,6 @@
         </button>
     </div>
 
-    <!-- Tombol Sorting -->
     <div class="w-full max-w-[1280px] mx-auto mt-8">
         <div id="sortBtn" data-layer="Button" class="Button cursor-pointer hover:opacity-80 transition" style="height: 48px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05); border-radius: 12px; outline: 1px #D4D4D4 solid; outline-offset: -1px; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
             <div id="sortText" data-layer="Harga Terendah" class="HargaTerendah" style="color: #121212; font-size: 16px; font-family: Poppins; font-weight: 500; line-height: 24px; word-wrap: break-word">Harga Terendah</div>
@@ -90,17 +84,23 @@
         </div>
     </div>
 
-    <!-- Kontainer untuk hasil kartu -->
-    <div id="results" class="w-full max-w-[1280px] mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="results" class="w-full max-w-[1280px] mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
     <div class="w-full max-w-[1280px] mx-auto pb-12 flex justify-center">
-        <button id="moreBtn" class="mt-8 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition">More</button>
+        <button id="moreBtn" class="mt-8 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition" style="display: none;">More</button>
     </div>
 </div>
 
 
 
 <script>
-    const locations = [...new Set(venues.map(v => JSON.stringify({ city: v.city, country: v.country })))].map(JSON.parse);
+    // --- Konfigurasi ---
+    const csrftoken = '{{ csrf_token }}';
+    const searchApiUrl = "{% url 'venue:search_venues_api' %}"; // URL API baru Anda
+    
+
+    const locations = JSON.parse('{{ locations_json|safe }}' || '[]'); 
+    
     const capacities = [
         { label: "0-10.000", min: 0, max: 10000 },
         { label: "10.000-20.000", min: 10001, max: 20000 },
@@ -127,17 +127,19 @@
     const cariBtn = document.getElementById('cariBtn');
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('results');
+    const moreBtn = document.getElementById('moreBtn');
 
-    let displayedCount = 0;
-    let sortOrder = 'lowToHigh'; // Default: Harga Terendah
+    // State
+    let currentPage = 1;
+    let sortOrder = 'lowToHigh';
+    let isLoading = false;
 
-    function displayVenues(start, end, venuesToShow = venues) {
-        const venuesSlice = venuesToShow.slice(start, end);
-        for (const venue of venuesSlice) {
+    function displayVenues(venuesToShow) {
+        for (const venue of venuesToShow) {
             const price = venue.price.toLocaleString('id-ID', { minimumFractionDigits: 0 });
             const card = document.createElement('a');
-            card.href = venueDetailUrls[venue.id] || `/venues/venue/${venue.id || '0'}/`; // Fallback dengan id default
-            card.className = 'block relative'; // Added relative to position buttons
+            card.href = venue.url_detail;
+            card.className = 'block relative border border-gray-300';
             card.style.cssText = `
                 width: 416px;
                 height: 485px;
@@ -157,77 +159,125 @@
                 transition: transform 0.2s;
             `;
 
-card.innerHTML = `
-            <div style="align-self: stretch; height: 183px; position: relative; overflow: hidden; border-radius: 12px;">
-                <img src="${venue.thumbnail}" alt="${venue.stadium}" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
+            card.innerHTML = `
+                <div style="align-self: stretch; height: 183px; position: relative; overflow: hidden; border-radius: 12px;">
+                    <img src="${venue.thumbnail}" alt="${venue.stadium}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
 
-            <div style="align-self: stretch; justify-content: space-between; align-items: center; display: flex;">
+                <div style="align-self: stretch; justify-content: space-between; align-items: center; display: flex;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 10.6C20 16.59 13.42 22.83 11.21 24.76C11.01 24.92 10.76 25 10.5 25C10.24 25 9.99 24.92 9.79 24.76C7.58 22.83 1 16.59 1 10.6C1 8.05 2 5.61 3.78 3.81C5.56 2.01 7.98 1 10.5 1C13.02 1 15.44 2.01 17.22 3.81C19 5.61 20 8.05 20 10.6Z" stroke="#737373" stroke-width="2"/>
+                            <path d="M10.5 14.2C12.47 14.2 14.06 12.59 14.06 10.6C14.06 8.61 12.47 7 10.5 7C8.53 7 6.94 8.61 6.94 10.6C6.94 12.59 8.53 14.2 10.5 14.2Z" stroke="#737373" stroke-width="2"/>
+                        </svg>
+                        <span style="color: #737373; font-size: 16px; font-weight: 500;">${venue.city}, ${venue.country}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <svg width="20" height="20" fill="#FFCC00" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 15l-5.878 3.09L5.64 12.18.76 7.41l6.09-.88L10 1l3.15 5.53 6.09.88-4.88 4.77 1.52 5.91z"/>
+                        </svg>
+                        <span style="color: #121212; font-size: 16px; font-weight: 500;">4.5</span> </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; align-self: stretch;">
+                    <h3 style="font-size: 20px; font-weight: 700; color: #121212;">${venue.stadium}</h3>
+                    <p style="color: #121212; font-size: 16px; font-weight: 500;">Stadion modern dengan fasilitas lengkap...</p> </div>
+
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 10.6C20 16.59 13.42 22.83 11.21 24.76C11.01 24.92 10.76 25 10.5 25C10.24 25 9.99 24.92 9.79 24.76C7.58 22.83 1 16.59 1 10.6C1 8.05 2 5.61 3.78 3.81C5.56 2.01 7.98 1 10.5 1C13.02 1 15.44 2.01 17.22 3.81C19 5.61 20 8.05 20 10.6Z" stroke="#737373" stroke-width="2"/>
-                        <path d="M10.5 14.2C12.47 14.2 14.06 12.59 14.06 10.6C14.06 8.61 12.47 7 10.5 7C8.53 7 6.94 8.61 6.94 10.6C6.94 12.59 8.53 14.2 10.5 14.2Z" stroke="#737373" stroke-width="2"/>
+                    <svg width="24" height="24" stroke="#121212" stroke-width="2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 21V19C16 17.94 15.58 16.92 14.83 16.17C14.08 15.42 13.06 15 12 15H6C4.94 15 3.92 15.42 3.17 16.17C2.42 16.92 2 17.94 2 19V21M13 7C13 9.21 11.21 11 9 11C6.79 11 5 9.21 5 7C5 4.79 6.79 3 9 3C11.21 3 13 4.79 13 7Z"/>
                     </svg>
-                    <span style="color: #737373; font-size: 16px; font-weight: 500;">${venue.city}, ${venue.country}</span>
+                    <span style="font-size: 16px; font-weight: 500; color: #121212;">${venue.capacity.toLocaleString()} Kursi</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <svg width="20" height="20" fill="#FFCC00" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 15l-5.878 3.09L5.64 12.18.76 7.41l6.09-.88L10 1l3.15 5.53 6.09.88-4.88 4.77 1.52 5.91z"/>
-                    </svg>
-                    <span style="color: #121212; font-size: 16px; font-weight: 500;">4.5</span>
-                </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 8px; align-self: stretch;">
-                <h3 style="font-size: 20px; font-weight: 700; color: #121212;">${venue.stadium}</h3>
-                <p style="color: #121212; font-size: 16px; font-weight: 500;">Stadion modern dengan fasilitas lengkap untuk berbagai acara olahraga.</p>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="24" height="24" stroke="#121212" stroke-width="2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 21V19C16 17.94 15.58 16.92 14.83 16.17C14.08 15.42 13.06 15 12 15H6C4.94 15 3.92 15.42 3.17 16.17C2.42 16.92 2 17.94 2 19V21M13 7C13 9.21 11.21 11 9 11C6.79 11 5 9.21 5 7C5 4.79 6.79 3 9 3C11.21 3 13 4.79 13 7Z"/>
-                </svg>
-                <span style="font-size: 16px; font-weight: 500; color: #121212;">${venue.capacity.toLocaleString()} Kursi</span>
-            </div>
-
-            ${(venue.can_access_management) ? `
-            <div style="display: flex; gap: 8px; align-self: flex-start; position: absolute; bottom: 72px; left: 24px;">
-                <a href="${venueEditUrls[venue.id]}"
-                    class="text-xs font-semibold px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 no-underline"
-                    onclick="event.stopPropagation();">
-                    Edit
-                </a>
                 
-                <form id="delete-form-${venue.id}" method="POST" action="${venueDeleteUrls[venue.id]}" style="display: inline-block;">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrftoken}">
-                    <button type="submit" 
-                            class="text-xs font-semibold px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 no-underline"
-                            onclick="event.preventDefault(); event.stopPropagation(); if (confirm('Yakin ingin menghapus ${venue.stadium}?')) { document.getElementById('delete-form-${venue.id}').submit(); }">
-                        Delete
-                    </button>
-                </form>
-            </div>
-            ` : ''}
+                <div style="align-self: stretch; justify-content: space-between; display: flex; align-items: center; ">
+                    <span style="color: #0062FF; font-size: 28px; font-weight: 700;">Rp ${price}</span>
+                    <button style="height: 48px; padding: 0 24px; background: #0062FF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;">Sewa</button>
+                </div>
 
-            <div style="align-self: stretch; justify-content: space-between; display: flex; align-items: center; margin-top: auto;"> 
-                <span style="color: #0062FF; font-size: 28px; font-weight: 700;">Rp ${price}</span>
-                <button style="height: 48px; padding: 0 24px; background: #0062FF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;">Sewa</button>
-            </div>
-        `;
-        resultsContainer.appendChild(card);
-    }
-
-        displayedCount += venuesSlice.length;
-        if (displayedCount >= venuesToShow.length) {
-            document.getElementById('moreBtn').style.display = 'none';
+                ${(venue.can_access_management) ? `
+                <div style="display: flex; gap: 8px; align-self: flex-start; justi bottom: 72px; left: 24px;">
+                    <a href="${venue.url_edit}"
+                        class="text-xs font-semibold px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 no-underline"
+                        onclick="event.stopPropagation();">
+                        Edit
+                    </a>
+                    
+                    <form id="delete-form-${venue.id}" method="POST" action="${venue.url_delete}" style="display: inline-block;">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrftoken}">
+                        <button type="submit"
+                                class="text-xs font-semibold px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 no-underline"
+                                onclick="event.preventDefault(); event.stopPropagation(); if (confirm('Yakin ingin menghapus ${venue.stadium}?')) { document.getElementById('delete-form-${venue.id}').submit(); }">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+                ` : ''}
+            `;
+            resultsContainer.appendChild(card);
         }
     }
 
-    displayVenues(0, 18);
+    async function performSearch(loadMore = false) {
+        if (isLoading) return;
+        isLoading = true;
 
-    document.getElementById('moreBtn').addEventListener('click', () => {
-        displayVenues(displayedCount, displayedCount + 18);
-    });
+        if (loadMore) {
+            currentPage += 1;
+        } else {
+            currentPage = 1;
+            resultsContainer.innerHTML = '';
+        }
+
+        const searchTerm = searchInput.value.trim();
+        const selectedLocation = lokasiText.textContent;
+        const selectedCapacity = kapasitasText.textContent;
+
+        const params = new URLSearchParams();
+        params.append('page', currentPage);
+        params.append('sort', sortOrder);
+
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        if (selectedLocation !== 'Pilih Kota') {
+            const [city, country] = selectedLocation.split(', ').map(str => str.trim());
+            params.append('city', city);
+        }
+        if (selectedCapacity !== 'Pilih') {
+            const selectedOption = capacities.find(cap => cap.label === selectedCapacity);
+            if (selectedOption) {
+                params.append('capacity_min', selectedOption.min);
+                params.append('capacity_max', selectedOption.max);
+            }
+        }
+
+        try {
+            const response = await fetch(`${searchApiUrl}?${params.toString()}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.venues && data.venues.length > 0) {
+                displayVenues(data.venues);
+            } else if (currentPage === 1) {
+                resultsContainer.innerHTML = '<p class="text-gray-500 font-poppins text-center col-span-full">Tidak ada stadion yang sesuai dengan kriteria.</p>';
+            }
+
+            if (data.has_next_page) {
+                moreBtn.style.display = 'block';
+            } else {
+                moreBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error("Error fetching venues:", error);
+            resultsContainer.innerHTML = '<p class="text-red-500 font-poppins text-center col-span-full">Gagal memuat data. Coba lagi nanti.</p>';
+        } finally {
+            isLoading = false;
+        }
+    }
+
 
     for (const location of locations) {
         const option = document.createElement('div');
@@ -237,6 +287,7 @@ card.innerHTML = `
             lokasiText.textContent = option.textContent;
             lokasiDropdown.classList.add('hidden');
             lokasiArrow.classList.remove('rotate-180');
+            performSearch(false);
         });
         lokasiOptions.appendChild(option);
     }
@@ -251,6 +302,7 @@ card.innerHTML = `
             kapasitasText.textContent = option.textContent;
             kapasitasDropdown.classList.add('hidden');
             kapasitasArrow.classList.remove('rotate-180');
+            performSearch(false);
         });
         kapasitasOptions.appendChild(option);
     }
@@ -265,6 +317,7 @@ card.innerHTML = `
         kapasitasArrow.classList.toggle('rotate-180');
     });
 
+    // Tutup dropdown jika klik di luar
     document.addEventListener('click', (event) => {
         if (!lokasiBtn.contains(event.target) && !lokasiDropdown.contains(event.target)) {
             lokasiDropdown.classList.add('hidden');
@@ -276,79 +329,34 @@ card.innerHTML = `
         }
     });
 
+    // Tombol Sort
     sortBtn.addEventListener('click', () => {
         if (sortOrder === 'lowToHigh') {
             sortOrder = 'highToLow';
             sortText.textContent = 'Harga Tertinggi';
-            sortText.dataset.layer = 'Harga Tertinggi';
             sortArrow.innerHTML = '<path d="M6 15L12 9L18 15" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-            sortBtn.style.background = '#E6F0FF';
         } else {
             sortOrder = 'lowToHigh';
             sortText.textContent = 'Harga Terendah';
-            sortText.dataset.layer = 'Harga Terendah';
             sortArrow.innerHTML = '<path d="M6 9L12 15L18 9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-            sortBtn.style.background = '#E6F0FF';
         }
-        performSearch();
+        performSearch(false);
     });
+    
+    cariBtn.addEventListener('click', () => performSearch(false));
 
-    function performSearch() {
-        const searchTerm = searchInput.value.trim().toLowerCase();
-        const selectedLocation = lokasiText.textContent;
-        const selectedCapacity = kapasitasText.textContent;
-        let filteredVenues = [...venues];
-
-        if (searchTerm) {
-            filteredVenues = filteredVenues.filter(venue => 
-                venue.stadium.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        if (selectedLocation !== 'Pilih Kota') {
-            const [city, country] = selectedLocation.split(', ').map(str => str.trim());
-            filteredVenues = filteredVenues.filter(venue => 
-                venue.city === city && venue.country === country
-            );
-        }
-
-        if (selectedCapacity !== 'Pilih') {
-            const selectedOption = capacities.find(cap => cap.label === selectedCapacity);
-            if (selectedOption) {
-                filteredVenues = filteredVenues.filter(venue => 
-                    venue.capacity >= selectedOption.min && venue.capacity <= selectedOption.max
-                );
-            }
-        }
-
-        if (sortOrder === 'lowToHigh') {
-            filteredVenues.sort((a, b) => a.fixedPrice - b.fixedPrice);
-        } else if (sortOrder === 'highToLow') {
-            filteredVenues.sort((a, b) => b.fixedPrice - a.fixedPrice);
-        }
-
-        resultsContainer.innerHTML = '';
-        displayedCount = 0;
-        document.getElementById('moreBtn').style.display = 'block';
-
-        displayVenues(0, 18, filteredVenues);
-
-        if (filteredVenues.length === 0) {
-            resultsContainer.innerHTML = '<p class="text-gray-500 font-poppins text-center col-span-full">Tidak ada stadion yang sesuai dengan kriteria.</p>';
-            document.getElementById('moreBtn').style.display = 'none';
-        }
-        else if (filteredVenues.length < 18) {
-            document.getElementById('moreBtn').style.display = 'none';
-        }
-    }
-
-    cariBtn.addEventListener('click', performSearch);
+    moreBtn.addEventListener('click', () => performSearch(true));
 
     searchInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            performSearch();
+            performSearch(false);
         }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        performSearch(false);
+    });
+
 </script>
 {% endblock %}

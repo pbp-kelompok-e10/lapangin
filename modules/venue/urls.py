@@ -14,6 +14,7 @@ urlpatterns = [
     path('edit/<int:venue_id>/', views.edit_venue, name='edit_venue'),
     path('delete/<int:venue_id>/', views.delete_venue, name='delete_venue'),
     path('create/', views.create_venue, name='create_venue'),
+    path('api/search/', views.search_venues_api, name='search_venues_api'),
     # path('import/', views.import_venues, name='import_venues'),
 
 ]
