@@ -39,8 +39,6 @@ Aplikasi Lapangin dirancang untuk membantu klub atau panitia pertandingan untuk 
 
 ## Role pengguna beserta deskripsi
 
-daftar role:
-1. Pemesan : Pengguna yang mencari dan menyewa stadion,
 2. Pengguna (User):
 Menggunakan Lapangin untuk menelusuri dan menemukan Stadion yang bisa disewa
 Menyewa Stadion untuk keperluan latihan atau pertandingan
@@ -140,5 +138,5 @@ Proyek ini menggunakan `coverage` untuk mengukur seberapa banyak kode Anda yang 
 
 ## Tautan deplomen PWS dan Link design
 
-PWS : [https://angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id/](https://angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id/)
-Link Design : [https://www.figma.com/design/RaRxA8STyW3ax1YRha9lYu/PBP?node-id=1-2\&t=6U2el2vgKl0KXWTc-1](https://www.figma.com/design/RaRxA8STyW3ax1YRha9lYu/PBP?node-id=1-2&t=6U2el2vgKl0KXWTc-1)
+- PWS : [https://angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id/](https://angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id/)
+- Link Design : [https://www.figma.com/design/RaRxA8STyW3ax1YRha9lYu/PBP?node-id=1-2\&t=6U2el2vgKl0KXWTc-1](https://www.figma.com/design/RaRxA8STyW3ax1YRha9lYu/PBP?node-id=1-2&t=6U2el2vgKl0KXWTc-1)
