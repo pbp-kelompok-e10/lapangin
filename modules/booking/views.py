@@ -1,16 +1,16 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.contrib.auth.decorators import login_required
 from .models import Booking
 from modules.venue.models import Venue
 import json
 from datetime import date
 from django.db.models import F
+from django.urls import reverse
 
 @require_GET
 def get_booked_dates_api(request, venue_id):
-    """ Returns a list of booked dates (YYYY-MM-DD strings) for a venue. """
     if not Venue.objects.filter(pk=venue_id).exists():
         return JsonResponse({'error': 'Venue not found.'}, status=404)
 
@@ -27,7 +27,6 @@ def get_booked_dates_api(request, venue_id):
 @login_required
 @require_POST
 def create_booking_api(request):
-    """ Creates a new single-day booking. """
     try:
         data = json.loads(request.body)
         venue_id = data.get('venue_id')
@@ -43,7 +42,7 @@ def create_booking_api(request):
         if booking_date < date.today():
             return JsonResponse({'success': False, 'message': 'Tanggal booking tidak boleh di masa lalu.'}, status=400)
 
-        # Check if already booked (using unique_together implicitly helps, but explicit check is clearer)
+        # Check if already booked
         if Booking.objects.filter(venue=venue, booking_date=booking_date).exists():
             return JsonResponse({'success': False, 'message': 'Tanggal ini sudah dibooking.'}, status=400)
 
@@ -71,7 +70,6 @@ def create_booking_api(request):
     except Venue.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Venue tidak ditemukan.'}, status=404)
     except Exception as e:
-        # Catch potential IntegrityError from unique_together if race condition occurs
         if 'UNIQUE constraint failed' in str(e):
             return JsonResponse({'success': False, 'message': 'Tanggal ini sudah dibooking.'}, status=400)
         return JsonResponse({'success': False, 'message': f'Terjadi kesalahan server: {str(e)}'}, status=500)
@@ -79,16 +77,14 @@ def create_booking_api(request):
 
 @login_required
 def booking_history_page(request):
-    """ Renders the booking history page shell. """
-    return render(request, 'booking/booking_history.html')
+    return render(request, 'booking_history.html')
 
 @login_required
 def get_user_bookings_api(request):
-    """ Returns a list of bookings for the current user. """
-    user_bookings = Booking.objects.filter(user=request.user).select_related('venue').order_by('-booking_date') 
-
+    user_bookings = Booking.objects.filter(user=request.user).select_related('venue').order_by('-booking_date')
     bookings_data = []
     for booking in user_bookings:
+        can_modify = booking.booking_date >= date.today()
         bookings_data.append({
             'booking_id': booking.id,
             'venue_id': booking.venue.id,
@@ -96,6 +92,80 @@ def get_user_bookings_api(request):
             'venue_thumbnail': booking.venue.thumbnail if booking.venue.thumbnail else '/static/img/default-thumbnail.jpg',
             'booking_date': booking.booking_date.isoformat(),
             'created_at': booking.created_at.isoformat(),
+            'can_modify': can_modify,
+            'url_detail': reverse('venue:venue_detail', args=[booking.venue.id]),
         })
 
     return JsonResponse({'bookings': bookings_data})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_booking_api(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
+
+    if booking.booking_date < date.today():
+        return JsonResponse({'success': False, 'message': 'Booking yang sudah lewat tidak bisa diubah.'}, status=403)
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_date_str = data.get('booking_date')
+            if not new_date_str:
+                return JsonResponse({'success': False, 'message': 'Tanggal baru diperlukan.'}, status=400)
+
+            new_date = date.fromisoformat(new_date_str)
+
+            if new_date < date.today():
+                return JsonResponse({'success': False, 'message': 'Tanggal baru tidak boleh di masa lalu.'}, status=400)
+
+            if Booking.objects.filter(
+                venue=booking.venue,
+                booking_date=new_date
+            ).exclude(pk=booking.id).exists():
+                return JsonResponse({'success': False, 'message': 'Tanggal baru tersebut sudah dibooking.'}, status=400)
+
+            booking.booking_date = new_date
+            booking.save(update_fields=['booking_date'])
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Tanggal booking berhasil diperbarui.',
+                'updated_booking': {
+                'booking_id': booking.id,
+                'booking_date': booking.booking_date.isoformat(),
+                }
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Format data tidak valid.'}, status=400)
+        except ValueError:
+            return JsonResponse({'success': False, 'message': 'Format tanggal baru tidak valid (YYYY-MM-DD).'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Terjadi kesalahan: {str(e)}'}, status=500)
+
+    else:
+        return JsonResponse({'success': True, 'data': {'booking_date': booking.booking_date.isoformat()}})
+
+
+@login_required
+@require_POST
+def delete_booking_api(request, booking_id):
+    """ Handles deleting a booking. """
+    booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
+
+    if booking.booking_date < date.today():
+        return JsonResponse({'success': False, 'message': 'Booking yang sudah lewat tidak bisa dihapus.'}, status=403)
+
+    try:
+        booking_id_deleted = booking.id
+        venue_name = booking.venue.name
+        booking_date = booking.booking_date
+        booking.delete()
+        return JsonResponse({
+            'success': True,
+            'message': f'Booking untuk {venue_name} pada tanggal {booking_date.isoformat()} berhasil dibatalkan.',
+            'deleted_booking_id': booking_id_deleted
+            })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Gagal membatalkan booking: {str(e)}'}, status=500)

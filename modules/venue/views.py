@@ -10,8 +10,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from modules.venue.models import Venue
 from modules.venue.forms import VenueForm
-from .decorators import venue_access_required
-from .decorators import is_venue_provider_or_admin
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
@@ -52,7 +50,7 @@ def get_venue_detail_api(request, venue_id):
             'country': venue.country,
             'capacity': venue.capacity,
             'price': venue.price,
-            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png', 
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
         }
@@ -63,7 +61,6 @@ def get_venue_detail_api(request, venue_id):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 @login_required
-@venue_access_required
 @require_POST
 def create_venue(request):
     form = VenueForm(request.POST)
@@ -77,7 +74,6 @@ def create_venue(request):
         return JsonResponse({'success': False, 'errors': form.errors.as_json()}, status=400)
 
 @login_required
-@venue_access_required
 def edit_venue(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
 
@@ -105,14 +101,13 @@ def edit_venue(request, venue_id):
         return JsonResponse({'success': True, 'data': venue_data})
 
 @login_required
-@venue_access_required
 @require_POST
 def delete_venue(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
     
     if not (request.user.is_superuser or venue.owner == request.user):
-        return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
-    
+            return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
+
     try:
         venue_name = venue.name
         venue.delete()
@@ -169,7 +164,7 @@ def search_venues_api(request):
             'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
             'rating': venue.rating,
             'can_access_management': (request.user.is_authenticated and
-                                    (request.user.is_superuser or request.user == venue.owner)),
+                                    (request.user.is_superuser or request.user == venue.owner or request.user.is_staff)),
             
             'url_detail': reverse('venue:venue_detail', args=[venue.id]),
             'url_edit': reverse('venue:edit_venue', args=[venue.id]),

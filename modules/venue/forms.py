@@ -26,4 +26,4 @@ class VenueForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(VenueForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.required = False  # Make fields optional if needed; adjust as per your requirements
+            field.required = False

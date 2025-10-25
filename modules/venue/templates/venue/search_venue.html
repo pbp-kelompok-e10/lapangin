@@ -4,101 +4,102 @@
 {% block title %}Cari Lapangan - Lapangin{% endblock %}
 
 {% block content %}
-<div class="bg-[#FFFEF9] text-gray-800">
+<div class="text-gray-800">
     {% include "navbar.html" %}
 
-    <div class="w-full max-w-[1280px] mx-auto mt-40 bg-white shadow-md rounded-[100px] flex flex-col md:flex-row justify-between items-center gap-6 px-8 py-6">
-        <div class="w-full md:w-[380px]">
-            <div class="bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
-                <input
-                    id="searchInput"
-                    type="text"
-                    placeholder="Cari nama stadion"
-                    class="w-full text-gray-500 text-sm font-poppins outline-none"
-                >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M19 11a8 8 0 11-16 0 8 8 0 0116 0z" />
-                </svg>
-            </div>
-        </div>
-
-        <div class="relative">
-            <button id="lokasiBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
-                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21c-1.62-1.38-8-7.02-8-11a8 8 0 1116 0c0 3.98-6.38 9.62-8 11z" />
-                        <circle cx="12" cy="10" r="3" stroke-width="2" />
+    <div class="w-full max-w-[1280px] px-4 mx-auto">
+        <div class="w-full  border-gray-300 border justify-between mx-auto mt-40 flex flex-col rounded-md lg:flex-row lg:rounded-[100px] shadow-md px-4 py-4 gap-6 sm:px-8 sm:py-6">
+            <div class="">
+                <div class="bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Cari nama stadion"
+                        class="w-full text-gray-500 text-sm font-poppins outline-none"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M19 11a8 8 0 11-16 0 8 8 0 0116 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-[#0062FF] font-bold text-base font-poppins">Lokasi</p>
-                    <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
-                        <span id="lokasiText">Pilih Kota</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="lokasiArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+            </div>
+    
+            <div class="relative">
+                <button id="lokasiBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21c-1.62-1.38-8-7.02-8-11a8 8 0 1116 0c0 3.98-6.38 9.62-8 11z" />
+                            <circle cx="12" cy="10" r="3" stroke-width="2" />
                         </svg>
                     </div>
-                </div>
-            </button>
-            <div id="lokasiDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[300px] max-h-[300px] overflow-y-auto">
-                <div class="p-2" id="lokasiOptions"></div>
-            </div>
-        </div>
-
-        <div class="relative">
-            <button id="kapasitasBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
-                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
-                    <img src="{% static 'img/users.png' %}" alt="Kapasitas Icon" class="w-6 h-6">
-                </div>
-                <div>
-                    <p class="text-[#0062FF] font-bold text-base font-poppins">Kapasitas Kursi</p>
-                    <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
-                        <span id="kapasitasText">Pilih</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="kapasitasArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
-                        </svg>
+                    <div>
+                        <p class="text-[#0062FF] font-bold text-start text-base font-poppins">Lokasi</p>
+                        <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
+                            <span id="lokasiText">Pilih Kota</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="lokasiArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </div>
                     </div>
+                </button>
+                <div id="lokasiDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[300px] max-h-[300px] overflow-y-auto">
+                    <div class="p-2" id="lokasiOptions"></div>
                 </div>
-            </button>
-            <div id="kapasitasDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[200px] max-h-[300px] overflow-y-auto">
-                <div class="p-2" id="kapasitasOptions"></div>
             </div>
+    
+            <div class="relative">
+                <button id="kapasitasBtn" class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#003C9C]">
+                        <img src="{% static 'img/users.png' %}" alt="Kapasitas Icon" class="w-6 h-6">
+                    </div>
+                    <div>
+                        <p class="text-[#0062FF] font-bold text-base font-poppins">Kapasitas Kursi</p>
+                        <div class="flex items-center gap-1 text-gray-500 font-medium font-poppins">
+                            <span id="kapasitasText">Pilih</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 transition-transform" id="kapasitasArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                </button>
+                <div id="kapasitasDropdown" class="hidden absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[200px] max-h-[300px] overflow-y-auto">
+                    <div class="p-2" id="kapasitasOptions"></div>
+                </div>
+            </div>
+    
+            <button id="cariBtn" class="flex items-center justify-center gap-2 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition w-full md:w-auto">
+                <span>Cari</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-7-7m7 7l-7 7" />
+                </svg>
+            </button>
         </div>
 
-        <button id="cariBtn" class="flex items-center justify-center gap-2 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition w-full md:w-auto">
-            <span>Cari</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-7-7m7 7l-7 7" />
-            </svg>
-        </button>
     </div>
 
-    <div class="w-full max-w-[1280px] mx-auto mt-8 flex gap-2 items-center">
-        <div id="sortBtn" data-layer="Button" class="Button cursor-pointer hover:opacity-80 transition" style="height: 48px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05); border-radius: 12px; outline: 1px #D4D4D4 solid; outline-offset: -1px; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
-            <div id="sortText" data-layer="Harga Terendah" class="HargaTerendah" style="color: #121212; font-size: 16px; font-family: Poppins; font-weight: 500; line-height: 24px; word-wrap: break-word">Harga Terendah</div>
-            <div data-svg-wrapper data-layer="lucide/chevron-down" class="LucideChevronDown" style="position: relative">
+    <div class="w-full max-w-[1280px] mx-auto mt-8 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center px-4">
+        <div id="sortBtn" data-layer="Button" class="w-full sm:w-auto h-12 px-6 bg-white shadow-sm rounded-xl border border-gray-300 justify-center items-center gap-5 inline-flex cursor-pointer hover:opacity-80 transition">
+            <div id="sortText" data-layer="Harga Terendah" class="text-gray-900 text-base font-medium font-poppins leading-normal">Harga Terendah</div>
+            <div data-svg-wrapper data-layer="lucide/chevron-down" class="relative">
                 <svg id="sortArrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 9L12 15L18 9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
         </div>
-
-        <button id="createBtn" class="Button cursor-pointer hover:bg-[#0250cc] transition h-[48px] px-[24px] py-[24px] flex justify-center items-center rounded-xl bg-[#0062FF] outline-[1px] text-white shadow-md">
+        
+        <button id="createBtn" class="w-full sm:w-auto Button cursor-pointer hover:bg-[#0250cc] transition h-12 px-6 flex justify-center items-center rounded-xl bg-[#0062FF] text-white shadow-md">
             Add Venue
         </button>
     </div>
 
-    <div id="results" class="w-full max-w-[1280px] mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div id="results" class="w-full max-w-[1280px] mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
         </div>
     <div class="w-full max-w-[1280px] mx-auto pb-12 flex justify-center">
         <button id="moreBtn" class="mt-8 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition" style="display: none;">More</button>
     </div>
 
     <div id="addVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
-    
-        <div class="relative bg-white w-full max-w-3xl mx-auto rounded-lg shadow-xl border border-gray-200">
-            
-            <div class="p-6 sm:p-8">
+        <div class="relative w-full max-w-3xl mx-auto p-6 sm:p-8">
+            <div class="p-6 sm:p-8 bg-white">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Tambah Venue Baru</h1>
@@ -170,8 +171,8 @@
     </div>
 
     <div id="editVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
-        <div class="relative bg-white w-full max-w-3xl mx-auto rounded-lg shadow-xl border border-gray-200">
-            <div class="p-6 sm:p-8">
+        <div class="relative w-full max-w-3xl mx-auto p-6 sm:p-8">
+            <div class="p-6 sm:p-8 bg-white rounded-lg shadow-xl border border-gray-200 m-4">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Edit Venue</h1>
@@ -244,9 +245,7 @@
     </div>
 
     <div id="deleteVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
-        
-        <div class="relative bg-white w-full max-w-lg mx-auto rounded-lg shadow-xl border border-gray-200">
-            
+        <div class="relative bg-white w-full max-w-lg mx-auto rounded-lg shadow-xl border border-gray-200 m-4">
             <div class="p-6 sm:p-8">
                 <div class="flex justify-between items-center mb-4 pb-4 border-b">
                     <h1 class="text-2xl font-bold text-red-700">Konfirmasi Hapus</h1>
@@ -321,87 +320,86 @@
 
     function displayVenues(venuesToShow) {
         for (const venue of venuesToShow) {
-            const price = venue.price.toLocaleString('id-ID', { minimumFractionDigits: 0 });
+            const priceNumber = parseFloat(venue.price);
+            const price = priceNumber.toLocaleString('id-ID', { minimumFractionDigits: 0 });
             const card = document.createElement('a');
             card.href = venue.url_detail;
-            card.className = 'block relative border border-gray-300';
-            card.style.cssText = `
-                width: 416px;
-                height: 485px;
-                padding: 24px;
-                background: white;
-                box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.10);
-                border-radius: 12px;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                gap: 16px;
-                font-family: "Poppins", sans-serif;
-                text-decoration: none;
-                color: inherit;
-                cursor: pointer;
-                transition: transform 0.2s;
-            `;
 
+            card.className = `
+                block relative w-full h-auto p-6 bg-white
+                border border-gray-300 shadow-md rounded-xl
+                flex flex-col justify-start items-start gap-4
+                font-poppins no-underline text-inherit cursor-pointer
+                transition-all duration-200 hover:shadow-lg hover:-translate-y-1
+            `;
+            
             card.innerHTML = `
-                <div style="align-self: stretch; height: 183px; position: relative; overflow: hidden; border-radius: 12px;">
-                    <img src="${venue.thumbnail}" alt="${venue.stadium}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="self-stretch h-48 relative overflow-hidden rounded-xl">
+                    <img src="${venue.thumbnail}" alt="${venue.stadium}" class="w-full h-full object-cover">
                 </div>
 
                 <div class="self-stretch justify-between flex items-center">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="flex items-center gap-2">
                         <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M20 10.6C20 16.59 13.42 22.83 11.21 24.76C11.01 24.92 10.76 25 10.5 25C10.24 25 9.99 24.92 9.79 24.76C7.58 22.83 1 16.59 1 10.6C1 8.05 2 5.61 3.78 3.81C5.56 2.01 7.98 1 10.5 1C13.02 1 15.44 2.01 17.22 3.81C19 5.61 20 8.05 20 10.6Z" stroke="#737373" stroke-width="2"/>
                             <path d="M10.5 14.2C12.47 14.2 14.06 12.59 14.06 10.6C14.06 8.61 12.47 7 10.5 7C8.53 7 6.94 8.61 6.94 10.6C6.94 12.59 8.53 14.2 10.5 14.2Z" stroke="#737373" stroke-width="2"/>
                         </svg>
-                        <span style="color: #737373; font-size: 16px; font-weight: 500;">${venue.city}, ${venue.country}</span>
+                        <span class="text-gray-500 text-base font-medium">${venue.city}, ${venue.country}</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="flex items-center gap-1.5">
                         <svg width="20" height="20" fill="#FFCC00" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10 15l-5.878 3.09L5.64 12.18.76 7.41l6.09-.88L10 1l3.15 5.53 6.09.88-4.88 4.77 1.52 5.91z"/>
                         </svg>
-                        <span style="color: #121212; font-size: 16px; font-weight: 500;">${venue.rating}</span> </div>
+                        <span class="text-gray-900 text-base font-medium">${venue.rating}</span>
+                    </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 8px; align-self: stretch;">
-                    <h3 style="font-size: 20px; font-weight: 700; color: #121212;">${venue.stadium}</h3>
-                    <p style="color: #121212; font-size: 16px; font-weight: 500;">Stadion modern dengan fasilitas lengkap...</p> </div>
+                <div class="flex flex-col gap-2 self-stretch">
+                    <h3 class="text-xl font-bold text-gray-900 truncate">${venue.stadium}</h3>
+                    <p class="text-gray-700 text-base font-normal line-clamp-2">${venue.description || 'Stadion modern dengan fasilitas lengkap...'}</p> 
+                </div>
 
                 ${(venue.can_access_management) ? `
-                    <div style="display: flex; gap: 8px;">
+                    <div class="flex gap-2">
                         <button type="button"
                             data-api-url="${venue.url_edit}"
-                            class="edit-venue-btn text-xs font-semibold flex justify-center items-center px-3 bg-green-500 text-white rounded hover:bg-green-600 no-underline"
-                            style="height: 35px; text-decoration: none; border: none; cursor: pointer;">
+                            class="edit-venue-btn h-9 text-sm font-semibold flex justify-center items-center px-4 bg-green-500 text-white rounded-md hover:bg-green-600 no-underline transition-colors"
+                        >
                             Edit
                         </button>
                         
                         <button type="button"
                             data-api-url="${venue.url_delete}"
                             data-venue-name="${venue.stadium}"
-                            class="delete-venue-btn text-xs h-[35px] font-semibold px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 no-underline"
-                            style="height: 35px; border: none; cursor: pointer;">
+                            class="delete-venue-btn h-9 text-sm font-semibold flex justify-center items-center px-4 bg-red-500 text-white rounded-md hover:bg-red-600 no-underline transition-colors"
+                        >
                             Delete
                         </button>
                     </div>
                 ` : ''}
 
-                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto;">
+                <div class="flex items-center gap-2 mt-auto">
                     <svg width="24" height="24" stroke="#121212" stroke-width="2" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 21V19C16 17.94 15.58 16.92 14.83 16.17C14.08 15.42 13.06 15 12 15H6C4.94 15 3.92 15.42 3.17 16.17C2.42 16.92 2 17.94 2 19V21M13 7C13 9.21 11.21 11 9 11C6.79 11 5 9.21 5 7C5 4.79 6.79 3 9 3C11.21 3 13 4.79 13 7Z"/>
                     </svg>
-                    <span style="font-size: 16px; font-weight: 500; color: #121212;">${venue.capacity.toLocaleString()} Kursi</span>
+                    <span class="text-base font-medium text-gray-900">${venue.capacity.toLocaleString()} Kursi</span>
                 </div>
-
-                <div style="align-self: stretch; justify-content: space-between; display: flex; align-items: center;">
-                    <span style="color: #0062FF; font-size: 28px; font-weight: 700;">Rp ${price}</span>
-                    <button style="height: 48px; padding: 0 24px; background: #0062FF; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;">Sewa</button>
+                
+                <div class="self-stretch justify-between flex items-center">
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-blue-600 text-2xl font-bold">Rp ${price}</span>
+                        <span class="text-gray-500 text-base font-medium">/ hari</span>
+                    </div>
+                    <button class="h-12 px-6 bg-blue-600 text-white border-none rounded-lg text-base font-medium cursor-pointer hover:bg-blue-700 transition-colors">Sewa</button>
                 </div>
             `;
             resultsContainer.appendChild(card);
         }
     }
+    // ================================================================
+    // AKHIR MODIFIKASI FUNGSI
+    // ================================================================
+
 
     async function performSearch(loadMore = false) {
         if (isLoading) return;
@@ -566,8 +564,9 @@
     cancelModalBtn.addEventListener('click', closeVenueModal);
 
     addVenueModal.addEventListener('click', (event) => {
+        // Cek jika klik pada area overlay (modal background)
         if (event.target === addVenueModal) {
-            closeModal();
+            closeVenueModal();
         }
     });
 
@@ -582,7 +581,8 @@
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRFToken': csrftoken
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json',
                 }
             });
 
@@ -594,8 +594,9 @@
                 performSearch(false);
             } else {
                 let errorHtml = '<div class="p-3 text-sm rounded-md bg-red-100 text-red-700"><ul>';
-                for (const field in data.errors) {
-                    data.errors[field].forEach(error => {
+                const errors = JSON.parse(data.errors);
+                for (const field in errors) {
+                    errors[field].forEach(error => {
                         errorHtml += `<li>${field}: ${error.message}</li>`;
                     });
                 }
@@ -640,7 +641,6 @@
 
         } catch (error) {
             console.error('Error opening edit modal:', error);
-            alert('Gagal memuat data edit: ' + error.message);
         }
     }
 
@@ -653,6 +653,12 @@
     closeEditVenueModalBtn.addEventListener('click', closeEditVenueModal);
     cancelEditVenueBtn.addEventListener('click', closeEditVenueModal);
 
+    editVenueModal.addEventListener('click', (event) => {
+        if (event.target === editVenueModal) {
+            closeEditVenueModal();
+        }
+    });
+
     editVenueForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         editFormMessages.innerHTML = '';
@@ -662,7 +668,10 @@
             const response = await fetch(editVenueForm.action, {
                 method: 'POST',
                 body: formData,
-                headers: { 'X-CSRFToken': csrftoken }
+                headers: { 
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json'
+                }
             });
 
             const data = await response.json();
@@ -712,6 +721,12 @@
     closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
 
+    deleteVenueModal.addEventListener('click', (event) => {
+        if (event.target === deleteVenueModal) {
+            closeDeleteModal();
+        }
+    });
+
     confirmDeleteBtn.addEventListener('click', async () => {
         const apiUrl = confirmDeleteBtn.dataset.apiUrl;
         if (!apiUrl) return;
@@ -719,7 +734,10 @@
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken }
+                headers: { 
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json'
+                }
             });
 
             const data = await response.json();
@@ -740,23 +758,33 @@
 
     
     resultsContainer.addEventListener('click', (event) => {
-    const editButton = event.target.closest('.edit-venue-btn');
-    const deleteButton = event.target.closest('.delete-venue-btn');
+        const editButton = event.target.closest('.edit-venue-btn');
+        const deleteButton = event.target.closest('.delete-venue-btn');
 
-    if (editButton) {
-        event.preventDefault();
-        event.stopPropagation();
-        const apiUrl = editButton.dataset.apiUrl;
-        openEditModal(apiUrl);
-    }
-    
-    if (deleteButton) {
-        event.preventDefault();
-        event.stopPropagation();
-        const apiUrl = deleteButton.dataset.apiUrl;
-        const venueName = deleteButton.dataset.venueName;
-        openDeleteModal(apiUrl, venueName);
-    }
-});
+        if (editButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            const apiUrl = editButton.dataset.apiUrl;
+            openEditModal(apiUrl);
+        }
+        
+        if (deleteButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            const apiUrl = deleteButton.dataset.apiUrl;
+            const venueName = deleteButton.dataset.venueName;
+            openDeleteModal(apiUrl, venueName);
+        }
+    });
+
+    // Menutup modal saat menekan tombol 'Escape'
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeVenueModal();
+            closeEditVenueModal();
+            closeDeleteModal();
+        }
+    });
+
 </script>
 {% endblock %}
