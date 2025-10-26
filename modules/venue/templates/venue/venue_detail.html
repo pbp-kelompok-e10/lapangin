@@ -303,6 +303,7 @@
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
 
+
             if (result.success) {
                 const venue = result.venue;
 
@@ -489,6 +490,11 @@
         editReviewFormMessages.textContent = '';
         const apiUrl = `{% url 'review:edit_review' review_id=0 %}`.replace('0', reviewId);
 
+        if (!isAuth) {
+            window.location.href = '/accounts/login/';
+            return;
+        }
+
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) throw new Error('Gagal mengambil data review.');
@@ -660,10 +666,16 @@
         if (datePickerInstance) datePickerInstance.destroy();
         datePickerInput.value = '';
 
+        if (`{{ user.is_authenticated }}`) {
+            window.location.href = '/accounts/login'
+            return
+        }
+
         try {
             const response = await fetch(bookedDatesApiUrl);
             if (!response.ok) throw new Error('Gagal memuat tanggal booking.');
             const data = await response.json();
+
             
             datePickerInstance = flatpickr(datePickerInput, {
                 mode: "single",
