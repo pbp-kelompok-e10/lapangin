@@ -32,6 +32,12 @@ def create_booking_api(request):
         venue_id = data.get('venue_id')
         date_str = data.get('booking_date')
 
+        if not request.user.is_authenticated:
+            return JsonResponse({
+            'success': False,
+            'message': 'Otentikasi diperlukan. Silakan login terlebih dahulu.'
+        }, status=401)
+
         if not all([venue_id, date_str]):
             return JsonResponse({'success': False, 'message': 'Data tidak lengkap (venue_id, booking_date).'}, status=400)
 

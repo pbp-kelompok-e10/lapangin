@@ -50,11 +50,11 @@ def get_venue_detail_api(request, venue_id):
             'country': venue.country,
             'capacity': venue.capacity,
             'price': venue.price,
-            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png', 
+            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png',
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
         }
-        return JsonResponse({'success': True, 'venue': venue_data})
+        return JsonResponse({'success': True, 'venue': venue_data, 'is_authenticated': request.user.is_authenticated})
     except Venue.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Venue tidak ditemukan.'}, status=404)
     except Exception as e:
@@ -65,6 +65,10 @@ def get_venue_detail_api(request, venue_id):
 def create_venue(request):
     form = VenueForm(request.POST)
     
+    if not (request.user.is_authenticated):
+        return JsonResponse({'success': False, 'message': 'Anda tidak punya izin.'}, status=403)
+
+
     if form.is_valid():
         venue = form.save(commit=False)
         venue.owner = request.user
@@ -165,13 +169,13 @@ def search_venues_api(request):
             'rating': venue.rating,
             'can_access_management': (request.user.is_authenticated and
                                     (request.user.is_superuser or request.user == venue.owner or request.user.is_staff)),
-            
             'url_detail': reverse('venue:venue_detail', args=[venue.id]),
             'url_edit': reverse('venue:edit_venue', args=[venue.id]),
             'url_delete': reverse('venue:delete_venue', args=[venue.id]),
         })
 
     return JsonResponse({
+        'is_authenticated': request.user.is_authenticated,
         'venues': venues_data,
         'has_next_page': page_obj.has_next(),
         'current_page': page_obj.number,

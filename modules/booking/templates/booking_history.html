@@ -278,16 +278,15 @@
                 body: JSON.stringify({ booking_date: formattedDate })
             });
             const result = await response.json();
-            if (response.ok && result.success) {
+            if (response.ok) {
                 closeEditBookingModal();
                 showToast(result.message || "Booking diperbarui!", "", "success");
                 const cardToUpdate = historyContainer.querySelector(`[data-booking-id="${bookingId}"]`);
                 if (cardToUpdate) {
                     const dateDisplay = cardToUpdate.querySelector('.booking-date-display');
                     if(dateDisplay) dateDisplay.textContent = `🗓️ Tanggal: ${formatDateReadable(formattedDate)}`;
-                } else {
-                    loadBookingHistory();
                 }
+                loadBookingHistory();
             } else {
                 editBookingFormMessages.textContent = result.message || 'Gagal menyimpan perubahan.';
             }

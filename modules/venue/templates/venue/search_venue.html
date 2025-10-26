@@ -99,7 +99,7 @@
 
     <div id="addVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
         <div class="relative w-full max-w-3xl mx-auto p-6 sm:p-8">
-            <div class="p-6 sm:p-8 bg-white">
+            <div class="p-6 sm:p-8 bg-white rounded-lg">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Tambah Venue Baru</h1>
@@ -115,8 +115,8 @@
                 <form id="addVenueForm" method="POST" action="{% url 'venue:create_venue' %}" class="space-y-6">
                     {% csrf_token %}
                     <div>
-                        <label for="stadium" class="block text-sm font-medium text-gray-700 mb-2">Nama Stadion</label>
-                        <input type="text" id="stadium" name="stadium" placeholder="Masukkan nama lengkap stadion" required
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Stadion</label>
+                        <input type="text" id="name" name="name" placeholder="Masukkan nama lengkap stadion" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     </div>
     
@@ -280,6 +280,7 @@
 
 <script>
     // Config
+    let userIsAuthenticated = false;
     const csrftoken = '{{ csrf_token }}';
     const searchApiUrl = "{% url 'venue:search_venues_api' %}";
 
@@ -442,6 +443,8 @@
             }
             const data = await response.json();
 
+            userIsAuthenticated = data.is_authenticated
+
             if (data.venues && data.venues.length > 0) {
                 displayVenues(data.venues);
             } else if (currentPage === 1) {
@@ -573,9 +576,15 @@
     addVenueForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
+        if (!userIsAuthenticated) {
+            window.location.href = '/accounts/login/?next=/venues/';
+            return;
+        }
+
         formMessages.innerHTML = '';
         const formData = new FormData(addVenueForm);
-
+        
+        
         try {
             const response = await fetch(addVenueForm.action, {
                 method: 'POST',
@@ -585,9 +594,10 @@
                     'Accept': 'application/json',
                 }
             });
-
+            
+            
             const data = await response.json();
-
+            
             if (response.ok) {
                 closeVenueModal();
                 showToast("Venue berhasil dibuat", "", "success")
