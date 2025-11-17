@@ -1,11 +1,11 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Venue  # Adjust the import based on your app structure
+from .models import Venue
 
 class VenueForm(forms.ModelForm):
     class Meta:
         model = Venue
-        fields = ['name', 'city', 'country', 'capacity', 'price', 'thumbnail']  # Adjust fields as per your model
+        fields = ['name', 'city', 'country', 'capacity', 'price', 'thumbnail', 'description']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins outline-none'}),
             'city': forms.TextInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins outline-none'}),
@@ -13,6 +13,7 @@ class VenueForm(forms.ModelForm):
             'capacity': forms.NumberInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins outline-none'}),
             'price': forms.NumberInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins outline-none'}),
             'thumbnail': forms.ClearableFileInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins'}),
+            'description': forms.TextInput(attrs={'class': 'w-full text-gray-500 text-sm font-poppins outline-none'})
         }
         labels = {
             'name': 'Nama Stadion',
@@ -21,6 +22,7 @@ class VenueForm(forms.ModelForm):
             'capacity': 'Kapasitas Kursi',
             'price': 'Harga (Rp)',
             'thumbnail': 'Gambar Thumbnail',
+            'description': 'Deskripsi stadion'
         }
 
     def __init__(self, *args, **kwargs):

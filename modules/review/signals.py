@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.db.models import Avg
 from .models import Review
 from modules.venue.models import Venue
-from decimal import Decimal, ROUND_HALF_UP  # <-- IMPORT INI
+from decimal import Decimal, ROUND_HALF_UP
 
 @receiver([post_save, post_delete], sender=Review)
 def update_venue_rating(sender, instance, **kwargs):

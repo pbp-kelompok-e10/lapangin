@@ -51,13 +51,6 @@
                 </div>
 
                 <div class="mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Cek Ketersediaan</h2>
-                    <div class="flex items-center gap-3 overflow-x-auto pb-2" id="availability">
-                        <p class="text-gray-500">Fitur ketersediaan belum diimplementasikan.</p>
-                    </div>
-                </div>
-
-                <div class="mb-8">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4"> {# flex-col di mobile #}
                         <h2 class="text-xl font-bold text-gray-900">Ulasan</h2>
                         {% if user.is_authenticated %}
@@ -83,19 +76,14 @@
                     <div class="mb-6 pb-6 border-b border-gray-200">
                         <h4 class="font-bold text-gray-900 mb-3">Fasilitas Venue</h4>
                         <ul class="space-y-2 text-sm text-gray-700" id="facilities">
-                            <li class="text-gray-500">Memuat fasilitas...</li>
-                            <li class="flex gap-2"><span>•</span><span>AC Arena terpasang (12 jam)</span></li>
-                            <li class="flex gap-2"><span>•</span><span>Ruang Sekretariat</span></li>
-                            
+                            List Fasilitas belum tersedia
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="font-bold text-gray-900 mb-3">Aturan Venue</h4>
                         <ul class="space-y-2 text-sm text-gray-700" id="rules">
-                            <li class="text-gray-500">Memuat aturan...</li>
-                            <li class="flex gap-2"><span>•</span><span>No Refund</span></li>
-                            <li class="flex gap-2"><span>•</span><span>No Reschedule</span></li>
+                            Aturan belum tersedia
                         </ul>
                     </div>
                 </div>
@@ -283,8 +271,8 @@
 <script>
     const venueId = "{{ venue_id }}"
     const isAdmin = `{{ is_admin|yesno:"true,false" }}`
-    const venueDetailApiUrl = `{% url 'venue:get_venue_detail_api' venue_id=0 %}`.replace('0', venueId);
-    const reviewsApiUrl = `{% url 'review:get_venue_reviews' venue_id=0 %}`.replace('0', venueId);
+    const venueDetailApiUrl = "{% url 'venue:get_venue_detail_api' venue_id=venue_id %}";
+    const reviewsApiUrl = `{% url 'review:get_venue_reviews' venue_id=venue_id %}`;
     const addReviewApiUrl = `{% url 'review:add_review' %}`;
 
     const stadiumNameEl = document.getElementById('stadiumName');
@@ -438,7 +426,7 @@
                 card.className = "w-full bg-white rounded-xl shadow-md overflow-hidden font-sans border border-gray-200 mb-4";
                 const reviewStars = generateStars(review.rating);
                 let editDeleteButtons = '';
-                if (review.user_id === currentUserId || isAdmin) {
+                if (review.user_id === currentUserId || isAdmin == "true") {
                     editDeleteButtons = `
                         <div class="mt-3 pt-3 border-t border-gray-100 text-sm">
                             <button data-review-id="${review.id}" class="edit-review-btn text-blue-600 hover:underline mr-3">
@@ -490,6 +478,7 @@
         editReviewFormMessages.textContent = '';
         const apiUrl = `{% url 'review:edit_review' review_id=0 %}`.replace('0', reviewId);
 
+        let isAuth = `{{ user.is_authenticated|lower }}`;
         if (!isAuth) {
             window.location.href = '/accounts/login/';
             return;
@@ -506,7 +495,7 @@
 
             const ratingInputs = editReviewForm.querySelectorAll('input[name="rating"]');
             ratingInputs.forEach(input => {
-                input.checked = (parseInt(input.value) === Math.round(data.rating)); // Match integer part
+                input.checked = (parseInt(input.value) === Math.round(data.rating));
             });
 
             editReviewForm.elements.comment.value = data.comment || '';
@@ -656,7 +645,7 @@
     const bookingModalOverlay = document.getElementById('booking-modal-overlay');
     const datePickerInput = document.getElementById('booking-date-picker');
     const bookingFormMessages = document.getElementById('bookingFormMessages');
-    const bookedDatesApiUrl = `{% url 'booking:get_booked_dates_api' venue_id=0 %}`.replace('0', venueId);
+    const bookedDatesApiUrl = `{% url 'booking:get_booked_dates_api' venue_id=venue_id %}`;
     const createBookingUrl = `{% url 'booking:create_booking_api' %}`;
     let datePickerInstance = null;
 
@@ -733,7 +722,7 @@
             } else {
                 bookingFormMessages.textContent = result.message || 'Gagal membuat booking.';
             }
-        } catch (error) { /* ... (handle fetch error) ... */ }
+        } catch (error) {  }
     }
 
     // Venue Detail Load

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.core.validators import MinValueValidator
+import uuid
 
 class User(AbstractUser):
     is_venue_provider = models.BooleanField(default=False)
@@ -23,6 +24,7 @@ class User(AbstractUser):
     )
 
 class Venue(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     home_teams = models.TextField(blank=True)

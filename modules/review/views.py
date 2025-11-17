@@ -18,7 +18,7 @@ def add_review(request):
         if not venue_id:
             return JsonResponse({'status': 'error', 'message': 'Venue ID diperlukan.'}, status=400)
 
-        venue = Venue.objects.get(pk=int(venue_id))
+        venue = Venue.objects.get(pk=venue_id)
 
         form = ReviewForm(request.POST)
 
@@ -63,7 +63,7 @@ def edit_review(request, review_id):
         review = Review.objects.get(pk=review_id)
 
         if not (review.user == request.user or request.user.is_superuser or request.user.is_staff):
-            return JsonResponse({'success': False, 'message': 'Anda tidak punya izin untuk mengedit review ini.'}, status=403) # <-- Use success: False
+            return JsonResponse({'success': False, 'message': 'Anda tidak punya izin untuk mengedit review ini.'}, status=403)
 
         if request.method == 'POST':
             form = ReviewForm(request.POST, instance=review)

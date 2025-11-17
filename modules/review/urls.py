@@ -9,5 +9,5 @@ urlpatterns = [
     path('add/', add_review, name='add_review'),
     path('delete/<int:review_id>', delete_review, name='delete_review'),
     path('edit/<int:review_id>', edit_review, name="edit_review"),
-    path('reviews/<int:venue_id>', get_venue_reviews, name = "get_venue_reviews")
+    path('reviews/<uuid:venue_id>', get_venue_reviews, name = "get_venue_reviews")
 ]
