@@ -9,6 +9,7 @@ from .models import UserProfile
 from .forms import UserForm, UserProfileForm
 import json
 
+
 # Helper function to check if user is admin
 def is_admin(user):
     return user.is_staff or user.is_superuser

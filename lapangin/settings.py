@@ -28,9 +28,9 @@ SECRET_KEY = 'django-insecure-i-n5$1%#xc+rkzr&r53spj3ws5z^&6@kcpu@$%l4cxm*19n8er
 
 # SECURITY WARNING: don't run with debug turned on in production!
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "angga-ziaurrohchman-lapangin.pbp.cs.ui.ac.id", "10.0.2.2"]
 
 
 
@@ -49,7 +49,9 @@ INSTALLED_APPS = [
     'modules.faq',
     'modules.main',
     'modules.accounts',
-    'modules.review.apps.ReviewConfig'
+    'modules.review.apps.ReviewConfig',
+    'modules.authentication',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -61,7 +63,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 ROOT_URLCONF = 'lapangin.urls'
 
