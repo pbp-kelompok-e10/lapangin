@@ -5,7 +5,7 @@ from . import views
 app_name = 'booking'
 
 urlpatterns = [
-    path('api/get_booked/<int:venue_id>/', views.get_booked_dates_api, name='get_booked_dates_api'),
+    path('api/get_booked/<uuid:venue_id>/', views.get_booked_dates_api, name='get_booked_dates_api'),
     path('api/create/', views.create_booking_api, name='create_booking_api'),
     path('history/', views.booking_history_page, name='booking_history_page'),
     path('api/history/', views.get_user_bookings_api, name='get_user_bookings_api'),

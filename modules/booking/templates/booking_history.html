@@ -229,7 +229,8 @@
         editBookingIdInput.value = bookingId;
         editBookingVenueIdInput.value = venueId;
 
-        const bookedDatesUrl = `{% url 'booking:get_booked_dates_api' venue_id=0 %}`.replace('0', venueId);
+        const dummyUuid = '00000000-0000-0000-0000-000000000000';
+        const bookedDatesUrl = `{% url 'booking:get_booked_dates_api' venue_id='00000000-0000-0000-0000-000000000000' %}`.replace(dummyUuid, venueId);
 
         try {
             const response = await fetch(bookedDatesUrl);

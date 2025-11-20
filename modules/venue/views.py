@@ -20,13 +20,13 @@ def search_venue(request):
     context = {
         'locations_json': json.dumps(list(locations)),
         
-        'can_add_venue': request.user.is_authenticated
+        'can_add_venue': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff),
     }
     return render(request, 'venue/search_venue.html', context)
 
 def venue_detail(request, venue_id):
     try:
-        venue_exists = Venue.objects.filter(pk=int(venue_id)).exists()
+        venue_exists = Venue.objects.filter(pk=venue_id).exists()
         if not venue_exists:
             return render(request, 'venue/venue_not_found.html', {'venue_id': venue_id}, status=404)
 
@@ -65,7 +65,7 @@ def get_venue_detail_api(request, venue_id):
 def create_venue(request):
     form = VenueForm(request.POST)
     
-    if not (request.user.is_authenticated):
+    if not (request.user.is_authenticated or request.user.is_superuser or request.user.is_staff):
         return JsonResponse({'success': False, 'message': 'Anda tidak punya izin.'}, status=403)
 
 
@@ -81,7 +81,7 @@ def create_venue(request):
 def edit_venue(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
 
-    if not (request.user.is_superuser or venue.owner == request.user):
+    if not (request.user.is_staff or venue.owner == request.user):
         return JsonResponse({'success': False, 'message': 'Anda tidak punya izin.'}, status=403)
 
     if request.method == 'POST':
@@ -109,7 +109,7 @@ def edit_venue(request, venue_id):
 def delete_venue(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
     
-    if not (request.user.is_superuser or venue.owner == request.user):
+    if not (request.user.is_superuser or venue.owner == request.user or request.user.is_staff):
             return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
 
     try:
@@ -166,6 +166,7 @@ def search_venues_api(request):
             'capacity': venue.capacity,
             'price': venue.price,
             'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            'description': venue.description if venue.description else 'Deskripsi tidak tersedia',
             'rating': venue.rating,
             'can_access_management': (request.user.is_authenticated and
                                     (request.user.is_superuser or request.user == venue.owner or request.user.is_staff)),
