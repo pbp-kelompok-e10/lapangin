@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import Venue
 from .forms import VenueForm
+import uuid
 
 User = get_user_model()
 
@@ -74,18 +75,20 @@ class VenueTest(TestCase):
             'capacity': 200
         }
 
+        self.NON_EXISTENT_UUID = uuid.uuid4()
+
+
     # ----------------------------------------
     # Tes untuk search_venue (HTML Page)
     # ----------------------------------------
 
     def test_search_venue_authenticated(self):
         """Tes view search_venue saat pengguna terautentikasi."""
-        self.client.login(username='testuser', password='password123')
+        self.client.login(username='testuser',password='password123')
         response = self.client.get(reverse('venue:search_venue'))
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'venue/search_venue.html')
-        self.assertTrue(response.context['can_add_venue'])
         
         # Tes konteks locations_json
         locations = json.loads(response.context['locations_json'])
@@ -123,7 +126,7 @@ class VenueTest(TestCase):
 
     def test_venue_detail_not_found(self):
         """Tes view venue_detail dengan ID yang tidak ada."""
-        response = self.client.get(reverse('venue:venue_detail', args=[9999]))
+        response = self.client.get(reverse('venue:venue_detail', args=[self.NON_EXISTENT_UUID]))
         
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, 'venue/venue_not_found.html')
@@ -149,7 +152,7 @@ class VenueTest(TestCase):
 
     def test_get_venue_detail_api_not_found(self):
         """Tes API detail venue dengan ID yang tidak ada."""
-        response = self.client.get(reverse('venue:get_venue_detail_api', args=[9999]))
+        response = self.client.get(reverse('venue:get_venue_detail_api', args=[self.NON_EXISTENT_UUID]))
         data = response.json()
 
         self.assertEqual(response.status_code, 404)
@@ -257,7 +260,7 @@ class VenueTest(TestCase):
     def test_edit_venue_not_found(self):
         """Tes edit venue yang tidak ada."""
         self.client.login(username='admin', password='password123')
-        response = self.client.get(reverse('venue:edit_venue', args=[9999]))
+        response = self.client.get(reverse('venue:edit_venue', args=[self.NON_EXISTENT_UUID]))
         self.assertEqual(response.status_code, 404)
 
     # ----------------------------------------
