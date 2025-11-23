@@ -55,11 +55,9 @@ Memastikan aplikasi berfungsi dengan baik, selalu diperbarui, dan tetap aman dig
 Berikut adalah langkah-langkah untuk menjalankan proyek ini secara lokal.
 
 1.  **Clone Repositori**
-    Gantilah `https://github.com/pbp-kelompok-e10/lapangin` dengan URL repositori Git kelompok Anda.
-
     ```bash
     git clone https://github.com/pbp-kelompok-e10/lapangin
-    cd lapapngin
+    cd lapangin
     ```
 
 2.  **Buat dan Aktifkan *Virtual Environment***
