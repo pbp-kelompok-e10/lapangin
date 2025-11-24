@@ -113,7 +113,7 @@ def delete_review(request, review_id):
         return JsonResponse({'status': 'error', 'message': f'Terjadi kesalahan saat menghapus: {str(e)}'}, status=500)
 
 def get_venue_reviews(request, venue_id):
-    venue = Venue.objects.get(pk=int(venue_id))
+    venue = Venue.objects.get(pk=venue_id)
     reviews_qs = venue.reviews.select_related('user').all().order_by('-created_at')
 
     current_user_id = request.user.id if request.user.is_authenticated else None
