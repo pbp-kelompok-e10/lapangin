@@ -4,7 +4,7 @@ from modules.venue.models import Venue
 
 class Booking(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='bookings')
+    venue = models.ForeignKey('venue.Venue', on_delete=models.CASCADE, related_name='bookings')
     booking_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
