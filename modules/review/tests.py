@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Review
 from .forms import ReviewForm
-
+import uuid
 from modules.venue.models import Venue
 
 class ReviewModuleTestCase(TestCase):
@@ -46,6 +46,7 @@ class ReviewModuleTestCase(TestCase):
             comment="Initial review!"
         )
         cls.venue.refresh_from_db()
+        cls.NON_EXISTENT_UUID = uuid.uuid4()
 
     def setUp(self):
         self.client = Client()
@@ -193,7 +194,7 @@ class ReviewModuleTestCase(TestCase):
     def test_add_review_venue_not_found(self):
         """Test add_review with a non-existent venue_id."""
         self.client.login(username='testuser', password='password123')
-        data = {'venue_id': 999, 'rating': 4.0}
+        data = {'venue_id': 'ffffffff-ffff-ffff-ffff-ffffffffffff', 'rating': 4.0}
         response = self.client.post(self.add_review_url, data)
         
         self.assertEqual(response.status_code, 404)
@@ -273,7 +274,7 @@ class ReviewModuleTestCase(TestCase):
 
     def test_delete_review_permission_denied(self):
         """Test deleting a review as a non-owner."""
-        self.client.login(username='otheruser', password='password123') # Log in as wrong user
+        self.client.login(username='otheruser', password='password123') 
         response = self.client.post(self.delete_review_url)
         
         self.assertEqual(response.status_code, 403)
@@ -309,6 +310,6 @@ class ReviewModuleTestCase(TestCase):
         self.assertIsNone(json_response['current_user_id'])
         
     def test_get_venue_reviews_not_found(self):
-        url = reverse('review:get_venue_reviews', kwargs={'venue_id': 999})
+        url = reverse('review:get_venue_reviews', kwargs={'venue_id': self.NON_EXISTENT_UUID})
         with self.assertRaises(Venue.DoesNotExist):
             self.client.get(url)
