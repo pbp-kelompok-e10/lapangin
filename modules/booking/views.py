@@ -1,13 +1,13 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST, require_GET, require_http_methods
-from django.contrib.auth.decorators import login_required
 from .models import Booking
+from datetime import date
+from django.contrib.auth.decorators import login_required
+from django.db.models import F
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+from django.views.decorators.http import require_POST, require_GET, require_http_methods, csrf_exempt
 from modules.venue.models import Venue
 import json
-from datetime import date
-from django.db.models import F
-from django.urls import reverse
 
 @require_GET
 def get_booked_dates_api(request, venue_id):
@@ -24,7 +24,7 @@ def get_booked_dates_api(request, venue_id):
     return JsonResponse({'booked_dates': booked_date_strings})
 
 
-@login_required
+@csrf_exempt # Disable CSRF for API endpoints consumed by non-browser clients
 @require_POST
 def create_booking_api(request):
     try:
@@ -81,11 +81,7 @@ def create_booking_api(request):
         return JsonResponse({'success': False, 'message': f'Terjadi kesalahan server: {str(e)}'}, status=500)
 
 
-@login_required
-def booking_history_page(request):
-    return render(request, 'booking_history.html')
-
-@login_required
+@csrf_exempt
 def get_user_bookings_api(request):
     user_bookings = Booking.objects.filter(user=request.user).select_related('venue').order_by('-booking_date')
     bookings_data = []
@@ -105,9 +101,14 @@ def get_user_bookings_api(request):
     return JsonResponse({'bookings': bookings_data})
 
 
-@login_required
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def edit_booking_api(request, booking_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication credentials were not provided.'
+        }, status=401)
     booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
 
     if booking.booking_date < date.today():
@@ -154,10 +155,15 @@ def edit_booking_api(request, booking_id):
         return JsonResponse({'success': True, 'data': {'booking_date': booking.booking_date.isoformat()}})
 
 
-@login_required
+@csrf_exempt
 @require_POST
 def delete_booking_api(request, booking_id):
     """ Handles deleting a booking. """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication credentials were not provided.'
+        }, status=401)
     booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
 
     if booking.booking_date < date.today():
@@ -175,3 +181,4 @@ def delete_booking_api(request, booking_id):
             })
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Gagal membatalkan booking: {str(e)}'}, status=500)
+    
