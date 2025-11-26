@@ -5,9 +5,16 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views.decorators.http import require_POST, require_GET, require_http_methods, csrf_exempt
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from modules.venue.models import Venue
 import json
+
+@login_required
+def booking_history_page(request):
+    return render(request, 'booking_history.html')
+
+
 
 @require_GET
 def get_booked_dates_api(request, venue_id):
