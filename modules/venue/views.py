@@ -182,3 +182,72 @@ def search_venues_api(request):
         'current_page': page_obj.number,
         'total_pages': paginator.num_pages,
     })
+
+def show_json(request):
+    venue_list = Venue.objects.all()
+    data = [
+        {
+            'id': venue.id,
+            'stadium': venue.name,
+            'city': venue.city,
+            'country': venue.country,
+            'capacity': venue.capacity,
+            'price': venue.price,
+            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png',
+            'rating': venue.rating,
+            'description': venue.description or "Deskripsi tidak tersedia.",
+        }
+        for venue in venue_list
+    ]
+    return JsonResponse(data, safe=False)
+
+def get_venues_api(request):
+    try:
+        venues_list = Venue.objects.all()
+        venues_data = []
+        for venue in venues_list:
+            venues_data.append({
+                'id': venue.id,
+                'stadium': venue.name,
+                'city': venue.city,
+                'country': venue.country,
+                'price': venue.price,
+                'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+                'rating': venue.rating,
+                'url_detail': reverse('venue:venue_detail', args=[venue.id]),
+            })
+
+        return JsonResponse({
+            'success': True,
+            'venues': venues_data,
+            'message': 'Venue berhasil dimuat.'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Gagal memuat venue: {str(e)}'}, status=500)
+
+def get_recommended_venues_api(request):
+    try:
+
+        venues_list = Venue.objects.all().order_by('-rating', '-id')[:2]
+        venues_data = []
+        for venue in venues_list:
+            venues_data.append({
+                'id': venue.id,
+                'stadium': venue.name,
+                'city': venue.city,
+                'country': venue.country,
+                'price': venue.price,
+                'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+                'rating': venue.rating,
+                'url_detail': reverse('venue:venue_detail', args=[venue.id]),
+            })
+
+        return JsonResponse({
+            'success': True,
+            'venues': venues_data,
+            'message': 'Rekomendasi venue berhasil dimuat.'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Gagal memuat rekomendasi: {str(e)}'}, status=500)
