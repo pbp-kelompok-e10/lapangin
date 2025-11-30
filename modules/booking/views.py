@@ -22,7 +22,7 @@ def get_booked_dates_api(request, venue_id):
         return JsonResponse({'error': 'Venue not found.'}, status=404)
 
     booked_dates = Booking.objects.filter(
-        venue_id=venue_id,
+        venue_id=venue_id,  
         booking_date__gte=date.today()
     ).values_list('booking_date', flat=True)
 
