@@ -50,7 +50,7 @@ def get_venue_detail_api(request, venue_id):
             'country': venue.country,
             'capacity': venue.capacity,
             'price': venue.price,
-            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png',
+            'thumbnail': venue.thumbnail if venue.thumbnail else '',
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
         }
@@ -165,7 +165,7 @@ def search_venues_api(request):
             'country': venue.country,
             'capacity': venue.capacity,
             'price': venue.price,
-            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            'thumbnail': venue.thumbnail if venue.thumbnail else '',
             'description': venue.description if venue.description else 'Deskripsi tidak tersedia',
             'rating': venue.rating,
             'can_access_management': (request.user.is_authenticated and
@@ -193,7 +193,7 @@ def show_json(request):
             'country': venue.country,
             'capacity': venue.capacity,
             'price': venue.price,
-            'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/placeholder.png',
+            'thumbnail': venue.thumbnail if venue.thumbnail else '',
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
         }
@@ -211,8 +211,9 @@ def get_venues_api(request):
                 'stadium': venue.name,
                 'city': venue.city,
                 'country': venue.country,
+                'capacity': venue.capacity,
                 'price': venue.price,
-                'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+                'thumbnail': venue.thumbnail if venue.thumbnail else '',
                 'rating': venue.rating,
                 'url_detail': reverse('venue:venue_detail', args=[venue.id]),
             })
@@ -226,7 +227,7 @@ def get_venues_api(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Gagal memuat venue: {str(e)}'}, status=500)
 
-def get_recommended_venues_api(request):
+def get_recommended_detail_api(request):
     try:
 
         venues_list = Venue.objects.all().order_by('-rating', '-id')[:2]
@@ -238,7 +239,8 @@ def get_recommended_venues_api(request):
                 'city': venue.city,
                 'country': venue.country,
                 'price': venue.price,
-                'thumbnail': venue.thumbnail if venue.thumbnail else '/static/img/default-thumbnail.jpg',
+                'capacity': venue.capacity,
+                'thumbnail': venue.thumbnail if venue.thumbnail else '',
                 'rating': venue.rating,
                 'url_detail': reverse('venue:venue_detail', args=[venue.id]),
             })
@@ -251,3 +253,113 @@ def get_recommended_venues_api(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Gagal memuat rekomendasi: {str(e)}'}, status=500)
+
+def get_recommended_venues_api(request):
+    try:
+
+        venues_list = Venue.objects.all().order_by('-rating', '-id')[:2]
+        venues_data = []
+        for venue in venues_list:
+            venues_data.append({
+                'id': venue.id,
+                'stadium': venue.name,
+                'city': venue.city,
+                'country': venue.country,
+                'capacity': venue.capacity,
+                'price': venue.price,
+                'thumbnail': venue.thumbnail if venue.thumbnail else '',
+                'rating': venue.rating,
+                'url_detail': reverse('venue:venue_detail', args=[venue.id]),
+            })
+
+        return JsonResponse({
+            'success': True,
+            'venues': venues_data,
+            'message': 'Rekomendasi venue berhasil dimuat.'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Gagal memuat rekomendasi: {str(e)}'}, status=500)
+
+def check_venue_creation_permission_api(request):
+
+    is_allowed = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
+
+    return JsonResponse({
+
+        'can_create_venue': is_allowed
+
+    })
+
+
+@csrf_exempt
+def create_venue_flutter(request):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": "Method tidak diizinkan."}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"status": "error", "message": "Harap login untuk membuat venue. Akses ditolak."},
+            status=403
+        )
+        
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "message": "Invalid JSON format."}, status=400)
+
+    form = VenueForm(data)
+
+    if form.is_valid():
+        venue = form.save(commit=False)
+        venue.owner = request.user
+        venue.save()
+        return JsonResponse({'status': 'success', 'message': 'Venue berhasil ditambahkan.'}, status=201)
+    else:
+
+        error_details = json.loads(form.errors.as_json())
+        return JsonResponse({'status': 'error', 'errors': error_details}, status=400)
+
+@csrf_exempt
+def edit_venue_flutter(request, venue_id):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": "Method tidak diizinkan."}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"status": "error", "message": "Harap login untuk edit venue. Akses ditolak."},
+            status=403
+        )
+
+    venue = get_object_or_404(Venue, pk=venue_id)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "message": "Invalid JSON format."}, status=400)
+    
+
+    form = VenueForm(data, instance=venue)
+    if form.is_valid():
+        venue = form.save(commit=False)
+        venue.owner = request.user
+        venue.save()
+        return JsonResponse({'status': 'success', 'message': 'Venue berhasil diedit.'}, status=201)
+    else:
+
+        error_details = json.loads(form.errors.as_json())
+        return JsonResponse({'status': 'error', 'errors': error_details}, status=400)
+
+@csrf_exempt
+def delete_venue_api(request, venue_id):
+    venue = get_object_or_404(Venue, pk=venue_id)
+    
+    if not (request.user.is_authenticated):
+            return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
+
+    try:
+        venue_name = venue.name
+        venue.delete()
+        return JsonResponse({'success': True, 'message': f'Venue "{venue_name}" berhasil dihapus.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        
