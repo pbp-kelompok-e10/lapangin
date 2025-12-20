@@ -251,7 +251,7 @@ function toggleFAQ(element) {
 
 function confirmDelete(faqId, question) {
     if (confirm(`Apakah Anda yakin ingin menghapus FAQ: "${question}"?`)) {
-        window.location.href = `{% url 'faq:delete_faq' 0 %}`.replace('0', faqId);
+        window.location.href = `/faq/delete/${faqId}/`;
     }
 }
 </script>
