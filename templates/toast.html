@@ -1,14 +1,31 @@
 {% load static %}
-<div class="fixed py-[20px] gap-2 items-center px-[16px] rounded-md shadow-xl right-8 top-8 opacity-0 z-[99] transition-all duration-400 -translate-y-64 flex" id="toast-component">
+<div class="fixed py-[20px] gap-2 items-center px-[16px] pr-[12px] rounded-md shadow-xl right-8 top-8 opacity-0 z-[99] transition-all duration-400 -translate-y-64 flex" id="toast-component">
     <span id="toast-icon">
     </span>
-    <div>
+    <div class="flex-1">
         <h3 id="toast-title" class="font-md text-white">
         </h3>
         <p id="toast-message">
         </p>
     </div>
+    <button id="toast-close-btn" type="button" class="ml-2 p-1 rounded-full hover:bg-white/20 transition-colors focus:outline-none cursor-pointer">
+        <svg class="w-5 h-5 text-white pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 
 <script src="{% static 'js/toast.js' %}"></script>
+<script>
+    document.getElementById('toast-close-btn').addEventListener('click', function() {
+        var toast = document.getElementById('toast-component');
+        if (toast) {
+            if (typeof toastTimeout !== 'undefined') {
+                clearTimeout(toastTimeout);
+            }
+            toast.classList.remove("opacity-100", "translate-y-0");
+            toast.classList.add("opacity-0", "-translate-y-64");
+        }
+    });
+</script>
 
