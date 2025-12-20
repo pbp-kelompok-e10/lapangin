@@ -1,10 +1,19 @@
 let toastTimeout;
 
+function hideToast() {
+    const toastComponent = document.querySelector('#toast-component');
+    if (!toastComponent) return;
+    
+    clearTimeout(toastTimeout);
+    toastComponent.classList.remove("opacity-100", "translate-y-0");
+    toastComponent.classList.add("opacity-0", "-translate-y-64");
+}
+
 function showToast(title, message, type = 'normal', duration = 4000) {
     const toastComponent = document.querySelector('#toast-component');
     const toastTitle = document.querySelector('#toast-title');
     const toastMessage = document.querySelector('#toast-message');
-    const toastIcon = document.querySelector('#toast-icon')
+    const toastIcon = document.querySelector('#toast-icon');
     if (!toastComponent) return;
 
     clearTimeout(toastTimeout);

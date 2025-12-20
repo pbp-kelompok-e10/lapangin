@@ -159,7 +159,28 @@
             const data = await response.json();
             const bookings = data.bookings;
             historyContainer.innerHTML = '';
-            if (!bookings || bookings.length === 0) {  return; }
+            if (!bookings || bookings.length === 0) {
+                // Empty state
+                historyContainer.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="mb-6">
+                            <svg class="mx-auto w-24 h-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Riwayat Booking</h3>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Anda belum melakukan booking apapun. Mulai cari venue dan booking sekarang!</p>
+                        <a href="{% url 'venue:search_venue' %}" 
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-[#0062FF] text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Cari Venue
+                        </a>
+                    </div>
+                `;
+                return;
+            }
 
             bookings.forEach(booking => {
                 const bookingCard = document.createElement('div');
