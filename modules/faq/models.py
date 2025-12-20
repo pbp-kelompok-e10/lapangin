@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
 
 class FAQ(models.Model):
     CATEGORY_CHOICES = [
@@ -10,7 +11,8 @@ class FAQ(models.Model):
         ('venue', 'Venue'),
     ]
     
-    question = models.CharField(max_length=200)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    question = models.CharField()
     answer = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -19,3 +21,7 @@ class FAQ(models.Model):
 
     def __str__(self):
         return self.question
+
+class Meta:
+        ordering = ['-created_at']
+    

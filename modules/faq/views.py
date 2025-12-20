@@ -112,8 +112,8 @@ def create_faq_flutter(request):
             created_by=request.user if request.user.is_authenticated else None
         )
         new_faq.save()
-        
-        return JsonResponse({"status": "success"}, status=200)
+
+        return JsonResponse({"status": "success", "id": str(new_faq.id)}, status=200)
     else:
         return JsonResponse({"status": "error"}, status=401)
 
@@ -146,5 +146,7 @@ def update_faq_flutter(request, faq_id):
             return JsonResponse({"status": "success"}, status=200)
         except FAQ.DoesNotExist:
             return JsonResponse({"status": "error", "message": "FAQ not found"}, status=404)
+        except ValueError:
+            return JsonResponse({"status": "error", "message": "Invalid UUID"}, status=400)
     else:
         return JsonResponse({"status": "error"}, status=401)
