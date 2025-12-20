@@ -113,7 +113,7 @@ def create_faq_flutter(request):
         )
         new_faq.save()
 
-        return JsonResponse({"status": "success", "id": str(new_faq.id)}, status=200)
+        return JsonResponse({"status": "success", "pk": str(new_faq.id)}, status=200)
     else:
         return JsonResponse({"status": "error"}, status=401)
 

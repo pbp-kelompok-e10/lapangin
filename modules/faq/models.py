@@ -12,7 +12,7 @@ class FAQ(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    question = models.CharField()
+    question = models.CharField(max_length=255)
     answer = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -22,6 +22,6 @@ class FAQ(models.Model):
     def __str__(self):
         return self.question
 
-class Meta:
+    class Meta:
         ordering = ['-created_at']
     
