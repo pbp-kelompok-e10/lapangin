@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Profil Saya - Lapangin</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-gray-50 min-h-screen pt-20 pb-12">
+    <div class="container mx-auto px-4 lg:px-20">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div class="h-32 bg-[#0062FF]"></div>
+            <div class="px-8 pb-8">
+                <div class="relative flex flex-col md:flex-row md:items-end -mt-16 gap-6">
+                    <div class="w-32 h-32 bg-white p-1 rounded-2xl shadow-md">
+                        <div class="w-full h-full bg-gray-200 rounded-xl flex items-center justify-center text-[#0062FF] text-4xl font-bold">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h1 class="text-3xl font-bold text-gray-900">{{ profile.full_name|default:user.get_full_name|default:user.username }}</h1>
+                        <p class="text-[#737373] font-medium">@{{ user.username }}</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-bold text-[#003C9C] mb-4">Informasi Akun</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Nama Lengkap</label>
+                            <p class="text-gray-800 font-medium">{{ profile.full_name|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Username</label>
+                            <p class="text-gray-800 font-medium">{{ user.username }}</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">No. Telepon</label>
+                            <p class="text-gray-800 font-medium">{{ profile.phone|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Alamat</label>
+                            <p class="text-gray-800 font-medium">{{ profile.address|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Status Akun</label>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="px-3 py-1 bg-[#99FF00] text-black text-xs font-bold rounded-full">Penyewa</span>
+                                {% if user.is_staff %}
+                                <span class="px-3 py-1 bg-[#0062FF] text-white text-xs font-bold rounded-full">Staff</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Bergabung Sejak</label>
+                            <p class="text-gray-800 font-medium">{{ user.date_joined|date:"d F Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 min-h-[400px]">
+                    <div class="flex border-b border-gray-100">
+                        <button class="px-8 py-4 text-[#0062FF] font-bold border-b-2 border-[#0062FF]">
+                            Riwayat Booking
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        {% if bookings %}
+                            <div class="space-y-4">
+                                {% for booking in bookings %}
+                                <div class="flex flex-col md:flex-row gap-4 p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                                    <div class="w-full md:w-32 h-24 flex-shrink-0">
+                                        <img src="{{ booking.venue_thumbnail }}" alt="{{ booking.venue_name }}" class="w-full h-full object-cover rounded-lg">
+                                    </div>
+                                    
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-900">{{ booking.venue_name }}</h4>
+                                                <p class="text-sm text-gray-500 flex items-center gap-1">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    Jadwal Main: <span class="font-semibold text-[#0062FF]">{{ booking.booking_date }}</span>
+                                                </p>
+                                            </div>
+                                            {% if booking.can_modify %}
+                                            <span class="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full">Mendatang</span>
+                                            {% else %}
+                                            <span class="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Selesai</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-4 flex gap-4">
+                                            <a href="{{ booking.url_detail }}" class="text-sm font-bold text-[#0062FF] hover:underline">
+                                                Detail Venue
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center py-12 text-center">
+                                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                    <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800">Belum ada aktivitas</h3>
+                                <p class="text-[#737373] max-w-xs mx-auto mt-2">Anda belum melakukan pemesanan stadion apapun. Yuk, cari stadion favoritmu!</p>
+                                <a href="{% url 'venue:search_venue' %}" class="mt-6 inline-block bg-[#0062FF] text-white px-8 py-3 rounded-full font-bold hover:bg-[#003C9C] transition-all">
+                                    Cari Stadion
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

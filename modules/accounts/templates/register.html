@@ -28,12 +28,12 @@
         <form method="POST" id="register-form" action="" class="gap-3 flex flex-col">
             {% csrf_token %}
             <div class="flex flex-col mb-2">
-                <label for="name" class="mb-2 font-semibold text-[#737373]" >Masukkan Nama Lengkap<span class="text-[#DC2626] ml-2">*</span></label>
+                <label for="full_name" class="mb-2 font-semibold text-[#737373]" >Nama Lengkap</label>
                 <input type="text"
-                    maxlength="50"
-                    name="name"
-                    required
-                    placeholder="Type here"
+                    maxlength="255"
+                    name="full_name"
+                    id="full_name"
+                    placeholder="Contoh: John Doe"
                     class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
             </div>
             
@@ -43,7 +43,19 @@
                     type="text"
                     name="username"
                     id="username"
+                    required
                     placeholder="Type here"
+                    class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
+            </div>
+
+            <div class="flex flex-col mb-2">
+                <label for="phone" class="mb-2 font-semibold text-[#737373]" >No. Telepon</label>
+                <input
+                    type="tel"
+                    name="phone"
+                    id="phone"
+                    maxlength="15"
+                    placeholder="Contoh: 08123456789"
                     class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
             </div>
 
@@ -53,6 +65,7 @@
                     type="password"
                     name="password1"
                     id="password1"
+                    required
                     placeholder="Type here"
                     class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
             </div>
@@ -63,6 +76,7 @@
                     type="password"
                     name="password2"
                     id="password2"
+                    required
                     placeholder="Type here"
                     class="p-1 border px-4 py-3 rounded-md border-gray-300 text-sm">
             </div>

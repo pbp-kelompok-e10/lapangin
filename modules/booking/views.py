@@ -15,7 +15,6 @@ def booking_history_page(request):
     return render(request, 'booking_history.html')
 
 
-
 @require_GET
 def get_booked_dates_api(request, venue_id):
     if not Venue.objects.filter(pk=venue_id).exists():
@@ -188,4 +187,310 @@ def delete_booking_api(request, booking_id):
             })
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Gagal membatalkan booking: {str(e)}'}, status=500)
+
+
+# ============================================
+# FLUTTER API ENDPOINTS
+# ============================================
+
+def get_user_info(user):
+    """Helper function to get user info for Flutter"""
+    return {
+        'user_id': user.id,
+        'username': user.username,
+        'is_authenticated': True,
+        'is_superuser': user.is_superuser,
+        'is_staff': user.is_staff,
+        'is_admin': user.is_superuser or user.is_staff,
+    }
+
+
+@csrf_exempt
+@require_GET
+def flutter_get_booked_dates(request, venue_id):
+    """Get booked dates for a venue - Flutter API"""
+    if not Venue.objects.filter(pk=venue_id).exists():
+        return JsonResponse({'status': False, 'message': 'Venue not found.'}, status=404)
+
+    booked_dates = Booking.objects.filter(
+        venue_id=venue_id,
+        booking_date__gte=date.today()
+    ).values_list('booking_date', flat=True)
+
+    booked_date_strings = [d.isoformat() for d in booked_dates]
+
+    return JsonResponse({
+        'status': True,
+        'message': 'Booked dates retrieved successfully.',
+        'data': {
+            'venue_id': str(venue_id),
+            'booked_dates': booked_date_strings
+        }
+    })
+
+
+@csrf_exempt
+@require_POST
+def flutter_create_booking(request):
+    """Create a new booking - Flutter API"""
+    try:
+        data = json.loads(request.body)
+        venue_id = data.get('venue_id')
+        date_str = data.get('booking_date')
+
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': False,
+                'message': 'Authentication required. Please login first.',
+                'user': None
+            }, status=401)
+
+        if not all([venue_id, date_str]):
+            return JsonResponse({
+                'status': False,
+                'message': 'Incomplete data. venue_id and booking_date are required.'
+            }, status=400)
+
+        venue = get_object_or_404(Venue, pk=venue_id)
+        booking_date = date.fromisoformat(date_str)
+
+        if booking_date < date.today():
+            return JsonResponse({
+                'status': False,
+                'message': 'Booking date cannot be in the past.'
+            }, status=400)
+
+        if Booking.objects.filter(venue=venue, booking_date=booking_date).exists():
+            return JsonResponse({
+                'status': False,
+                'message': 'This date is already booked.'
+            }, status=400)
+
+        booking = Booking.objects.create(
+            user=request.user,
+            venue=venue,
+            booking_date=booking_date
+        )
+
+        return JsonResponse({
+            'status': True,
+            'message': 'Booking created successfully!',
+            'user': get_user_info(request.user),
+            'data': {
+                'booking_id': booking.id,
+                'venue_id': str(booking.venue.id),
+                'venue_name': booking.venue.name,
+                'venue_thumbnail': booking.venue.thumbnail if booking.venue.thumbnail else '',
+                'booking_date': booking.booking_date.isoformat(),
+                'created_at': booking.created_at.isoformat(),
+            }
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': False, 'message': 'Invalid JSON format.'}, status=400)
+    except ValueError:
+        return JsonResponse({'status': False, 'message': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+    except Venue.DoesNotExist:
+        return JsonResponse({'status': False, 'message': 'Venue not found.'}, status=404)
+    except Exception as e:
+        if 'UNIQUE constraint failed' in str(e):
+            return JsonResponse({'status': False, 'message': 'This date is already booked.'}, status=400)
+        return JsonResponse({'status': False, 'message': f'Server error: {str(e)}'}, status=500)
+
+
+@csrf_exempt
+@require_GET
+def flutter_get_user_bookings(request):
+    """Get all bookings for the authenticated user - Flutter API"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': False,
+            'message': 'Authentication required. Please login first.',
+            'user': None
+        }, status=401)
+
+    user_bookings = Booking.objects.filter(user=request.user).select_related('venue').order_by('-booking_date')
+    bookings_data = []
+    
+    for booking in user_bookings:
+        can_modify = booking.booking_date >= date.today()
+        
+        # Determine status
+        today = date.today()
+        if booking.booking_date < today:
+            status = 'completed'
+            status_display = 'Selesai'
+        elif booking.booking_date == today:
+            status = 'today'
+            status_display = 'Hari Ini'
+        else:
+            status = 'upcoming'
+            status_display = 'Akan Datang'
+        
+        bookings_data.append({
+            'booking_id': booking.id,
+            'venue_id': str(booking.venue.id),
+            'venue_name': booking.venue.name,
+            'venue_city': booking.venue.city,
+            'venue_thumbnail': booking.venue.thumbnail if booking.venue.thumbnail else '',
+            'venue_price': booking.venue.price,
+            'booking_date': booking.booking_date.isoformat(),
+            'created_at': booking.created_at.isoformat(),
+            'can_modify': can_modify,
+            'status': status,
+            'status_display': status_display,
+        })
+
+    return JsonResponse({
+        'status': True,
+        'message': 'Bookings retrieved successfully.',
+        'user': get_user_info(request.user),
+        'data': {
+            'total_bookings': len(bookings_data),
+            'bookings': bookings_data
+        }
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def flutter_edit_booking(request, booking_id):
+    """Edit a booking date - Flutter API"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': False,
+            'message': 'Authentication required. Please login first.',
+            'user': None
+        }, status=401)
+
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+        
+        # Check if user owns the booking OR is admin/staff
+        is_admin = request.user.is_superuser or request.user.is_staff
+        if booking.user != request.user and not is_admin:
+            return JsonResponse({
+                'status': False,
+                'message': 'You do not have permission to edit this booking.',
+                'user': get_user_info(request.user)
+            }, status=403)
+            
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'Booking not found.'
+        }, status=404)
+
+    if booking.booking_date < date.today():
+        return JsonResponse({
+            'status': False,
+            'message': 'Past bookings cannot be modified.'
+        }, status=403)
+
+    try:
+        data = json.loads(request.body)
+        new_date_str = data.get('booking_date')
+        
+        if not new_date_str:
+            return JsonResponse({
+                'status': False,
+                'message': 'New booking_date is required.'
+            }, status=400)
+
+        new_date = date.fromisoformat(new_date_str)
+
+        if new_date < date.today():
+            return JsonResponse({
+                'status': False,
+                'message': 'New date cannot be in the past.'
+            }, status=400)
+
+        if Booking.objects.filter(
+            venue=booking.venue,
+            booking_date=new_date
+        ).exclude(pk=booking.id).exists():
+            return JsonResponse({
+                'status': False,
+                'message': 'The new date is already booked.'
+            }, status=400)
+
+        old_date = booking.booking_date
+        booking.booking_date = new_date
+        booking.save(update_fields=['booking_date'])
+
+        return JsonResponse({
+            'status': True,
+            'message': 'Booking date updated successfully.',
+            'user': get_user_info(request.user),
+            'data': {
+                'booking_id': booking.id,
+                'venue_id': str(booking.venue.id),
+                'venue_name': booking.venue.name,
+                'old_date': old_date.isoformat(),
+                'new_date': booking.booking_date.isoformat(),
+            }
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': False, 'message': 'Invalid JSON format.'}, status=400)
+    except ValueError:
+        return JsonResponse({'status': False, 'message': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': False, 'message': f'Server error: {str(e)}'}, status=500)
+
+
+@csrf_exempt
+@require_POST
+def flutter_delete_booking(request, booking_id):
+    """Delete/cancel a booking - Flutter API"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': False,
+            'message': 'Authentication required. Please login first.',
+            'user': None
+        }, status=401)
+
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+        
+        # Check if user owns the booking OR is admin/staff
+        is_admin = request.user.is_superuser or request.user.is_staff
+        if booking.user != request.user and not is_admin:
+            return JsonResponse({
+                'status': False,
+                'message': 'You do not have permission to delete this booking.',
+                'user': get_user_info(request.user)
+            }, status=403)
+            
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'Booking not found.'
+        }, status=404)
+
+    if booking.booking_date < date.today():
+        return JsonResponse({
+            'status': False,
+            'message': 'Past bookings cannot be cancelled.'
+        }, status=403)
+
+    try:
+        booking_data = {
+            'booking_id': booking.id,
+            'venue_name': booking.venue.name,
+            'booking_date': booking.booking_date.isoformat(),
+        }
+        booking.delete()
+        
+        return JsonResponse({
+            'status': True,
+            'message': f'Booking for {booking_data["venue_name"]} on {booking_data["booking_date"]} has been cancelled.',
+            'user': get_user_info(request.user),
+            'data': booking_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Failed to cancel booking: {str(e)}'
+        }, status=500)
     

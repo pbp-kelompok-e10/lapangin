@@ -53,6 +53,8 @@ def get_venue_detail_api(request, venue_id):
             'thumbnail': venue.thumbnail if venue.thumbnail else '',
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
+            'facilities': venue.facilities or "",
+            'rules': venue.rules or "",
         }
         return JsonResponse({'success': True, 'venue': venue_data, 'is_authenticated': request.user.is_authenticated})
     except Venue.DoesNotExist:
@@ -101,6 +103,8 @@ def edit_venue(request, venue_id):
             'price': venue.price,
             'thumbnail': venue.thumbnail,
             'description': venue.description,
+            'facilities': venue.facilities,
+            'rules': venue.rules,
         }
         return JsonResponse({'success': True, 'data': venue_data})
 
@@ -196,6 +200,8 @@ def show_json(request):
             'thumbnail': venue.thumbnail if venue.thumbnail else '',
             'rating': venue.rating,
             'description': venue.description or "Deskripsi tidak tersedia.",
+            'facilities': venue.facilities or "",
+            'rules': venue.rules or "",
         }
         for venue in venue_list
     ]
@@ -215,6 +221,8 @@ def get_venues_api(request):
                 'price': venue.price,
                 'thumbnail': venue.thumbnail if venue.thumbnail else '',
                 'rating': venue.rating,
+                'facilities': venue.facilities or "",
+                'rules': venue.rules or "",
                 'url_detail': reverse('venue:venue_detail', args=[venue.id]),
             })
 
@@ -292,6 +300,20 @@ def check_venue_creation_permission_api(request):
     })
 
 
+def get_flutter_user_info(user):
+    """Helper function to get user info for Flutter"""
+    if not user.is_authenticated:
+        return None
+    return {
+        'user_id': user.id,
+        'username': user.username,
+        'is_authenticated': True,
+        'is_superuser': user.is_superuser,
+        'is_staff': user.is_staff,
+        'is_admin': user.is_superuser or user.is_staff,
+    }
+
+
 @csrf_exempt
 def create_venue_flutter(request):
     if request.method != 'POST':
@@ -299,7 +321,15 @@ def create_venue_flutter(request):
 
     if not request.user.is_authenticated:
         return JsonResponse(
-            {"status": "error", "message": "Harap login untuk membuat venue. Akses ditolak."},
+            {"status": "error", "message": "Harap login untuk membuat venue. Akses ditolak.", "user": None},
+            status=403
+        )
+    
+    # Check if user is admin (superuser or staff)
+    is_admin = request.user.is_superuser or request.user.is_staff
+    if not is_admin:
+        return JsonResponse(
+            {"status": "error", "message": "Hanya admin yang dapat membuat venue.", "user": get_flutter_user_info(request.user)},
             status=403
         )
         
@@ -314,11 +344,15 @@ def create_venue_flutter(request):
         venue = form.save(commit=False)
         venue.owner = request.user
         venue.save()
-        return JsonResponse({'status': 'success', 'message': 'Venue berhasil ditambahkan.'}, status=201)
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Venue berhasil ditambahkan.',
+            'user': get_flutter_user_info(request.user),
+            'venue_id': str(venue.id)
+        }, status=201)
     else:
-
         error_details = json.loads(form.errors.as_json())
-        return JsonResponse({'status': 'error', 'errors': error_details}, status=400)
+        return JsonResponse({'status': 'error', 'errors': error_details, 'user': get_flutter_user_info(request.user)}, status=400)
 
 @csrf_exempt
 def edit_venue_flutter(request, venue_id):
@@ -327,39 +361,74 @@ def edit_venue_flutter(request, venue_id):
 
     if not request.user.is_authenticated:
         return JsonResponse(
-            {"status": "error", "message": "Harap login untuk edit venue. Akses ditolak."},
+            {"status": "error", "message": "Harap login untuk edit venue. Akses ditolak.", "user": None},
             status=403
         )
 
     venue = get_object_or_404(Venue, pk=venue_id)
+    
+    # Check if user is admin OR owner of the venue
+    is_admin = request.user.is_superuser or request.user.is_staff
+    is_owner = venue.owner == request.user
+    
+    if not (is_admin or is_owner):
+        return JsonResponse(
+            {"status": "error", "message": "Anda tidak memiliki izin untuk mengedit venue ini.", "user": get_flutter_user_info(request.user)},
+            status=403
+        )
+    
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({"status": "error", "message": "Invalid JSON format."}, status=400)
     
-
     form = VenueForm(data, instance=venue)
     if form.is_valid():
         venue = form.save(commit=False)
-        venue.owner = request.user
+        # Don't change owner on edit
         venue.save()
-        return JsonResponse({'status': 'success', 'message': 'Venue berhasil diedit.'}, status=201)
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Venue berhasil diedit.',
+            'user': get_flutter_user_info(request.user),
+            'venue_id': str(venue.id)
+        }, status=200)
     else:
-
         error_details = json.loads(form.errors.as_json())
-        return JsonResponse({'status': 'error', 'errors': error_details}, status=400)
+        return JsonResponse({'status': 'error', 'errors': error_details, 'user': get_flutter_user_info(request.user)}, status=400)
 
 @csrf_exempt
 def delete_venue_api(request, venue_id):
     venue = get_object_or_404(Venue, pk=venue_id)
     
-    if not (request.user.is_authenticated):
-            return JsonResponse({'success': False, 'message': 'Anda tidak memiliki izin untuk menghapus venue ini.'}, status=403)
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Anda harus login untuk menghapus venue.',
+            'user': None
+        }, status=403)
+    
+    # Check if user is admin OR owner of the venue
+    is_admin = request.user.is_superuser or request.user.is_staff
+    is_owner = venue.owner == request.user
+    
+    if not (is_admin or is_owner):
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Anda tidak memiliki izin untuk menghapus venue ini.',
+            'user': get_flutter_user_info(request.user)
+        }, status=403)
 
     try:
         venue_name = venue.name
+        venue_id_deleted = str(venue.id)
         venue.delete()
-        return JsonResponse({'success': True, 'message': f'Venue "{venue_name}" berhasil dihapus.'})
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Venue "{venue_name}" berhasil dihapus.',
+            'user': get_flutter_user_info(request.user),
+            'deleted_venue_id': venue_id_deleted
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         

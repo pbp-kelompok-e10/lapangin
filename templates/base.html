@@ -29,8 +29,10 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" sizes="any">
     </head>
-<body>
-    {% block content %}{% endblock %}
+<body class="flex flex-col">
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
     {% include 'toast.html' %}
     {% include 'modal.html' %}
     <!-- Footer -->
