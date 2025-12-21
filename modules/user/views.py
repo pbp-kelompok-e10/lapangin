@@ -228,7 +228,55 @@ def user_toggle_status(request, user_id):
         'message': 'Invalid request method'
     }, status=400)
 
-#profile
+@login_required
+@user_passes_test(is_admin)
+def user_list_api(request):
+    """API endpoint for Flutter - returns JSON"""
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    
+    users = User.objects.all().select_related('profile').order_by('-date_joined')
+    
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    
+    if status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
+    
+    # Serialize users to JSON
+    users_data = []
+    for user in users:
+        profile = getattr(user, 'profile', None)
+        users_data.append({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email or '',
+            'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+            'is_authenticated': True,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'is_active': user.is_active,
+            'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+            'last_login': user.last_login.isoformat() if user.last_login else None,
+            'profile': {
+                'full_name': profile.full_name if profile else '',
+                'phone': profile.phone if profile else '',
+                'address': profile.address if profile else '',
+                'is_active': profile.is_active if profile else True,
+            } if profile else None
+        })
+    
+    return JsonResponse({'users': users_data}, safe=False)
+
+# ========== PROFILE API FUNCTIONS - ADD THESE ==========
+
 def get_profile(request):
     """Get current logged-in user's profile - RETURNS JSON"""
     try:
