@@ -6,13 +6,21 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import ReviewForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
 
+@csrf_exempt
 @login_required
 @require_POST
 def add_review(request):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {'status': 'error', 'message': 'User not authenticated'},
+            status=401
+        )
+    
     try:
         venue_id = request.POST.get('venue_id')
         if not venue_id:
@@ -132,4 +140,51 @@ def get_venue_reviews(request, venue_id):
     return JsonResponse({
         'reviews': reviews_data,
         'current_user_id': current_user_id
+    })
+    
+@csrf_exempt
+@require_POST
+def api_add_review(request):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {'success': False, 'message': 'User belum login'},
+            status=401
+        )
+
+    venue_id = request.POST.get('venue_id')
+    rating = request.POST.get('rating')
+    comment = request.POST.get('comment')
+
+    if not venue_id or not rating:
+        return JsonResponse(
+            {'success': False, 'message': 'Data tidak lengkap'},
+            status=400
+        )
+
+    try:
+        venue = Venue.objects.get(pk=venue_id)
+    except Venue.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'message': 'Venue tidak ditemukan'},
+            status=404
+        )
+
+    review, created = Review.objects.update_or_create(
+        user=request.user,
+        venue=venue,
+        defaults={
+            'rating': int(rating),
+            'comment': comment or '',
+        }
+    )
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Review berhasil disimpan',
+        'review': {
+            'user_id': request.user.id,
+            'user_name': request.user.username,
+            'rating': review.rating,
+            'comment': review.comment,
+        }
     })
