@@ -6,10 +6,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import ReviewForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
 
+@csrf_exempt
 @login_required
 @require_POST
 def add_review(request):
