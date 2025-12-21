@@ -275,8 +275,9 @@ def user_list_api(request):
     
     return JsonResponse({'users': users_data}, safe=False)
 
-# ========== PROFILE API FUNCTIONS - ADD THESE ==========
+# ========== PROFILE API FUNCTIONS ==========
 
+@login_required
 def get_profile(request):
     """Get current logged-in user's profile - RETURNS JSON"""
     try:
