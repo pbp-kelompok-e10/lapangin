@@ -11,4 +11,6 @@ urlpatterns = [
     path('edit/<int:review_id>', edit_review, name="edit_review"),
     path('reviews/<uuid:venue_id>', get_venue_reviews, name = "get_venue_reviews"),
     path('api/add/', api_add_review, name='api_add_review'),
+    path('api/edit/', api_edit_review),
+    path('api/delete/', api_delete_review),
 ]
