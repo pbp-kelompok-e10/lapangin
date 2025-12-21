@@ -188,3 +188,65 @@ def api_add_review(request):
             'comment': review.comment,
         }
     })
+    
+@csrf_exempt
+@require_POST
+def api_edit_review(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+
+    venue_id = request.POST.get('venue_id')
+    rating = request.POST.get('rating')
+    comment = request.POST.get('comment')
+
+    if not venue_id or not rating:
+        return JsonResponse({'success': False, 'message': 'Data tidak lengkap'}, status=400)
+
+    try:
+        review = Review.objects.get(
+            user=request.user,
+            venue_id=venue_id
+        )
+    except Review.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'message': 'Review tidak ditemukan'},
+            status=404
+        )
+
+    review.rating = int(rating)
+    review.comment = comment or ""
+    review.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Review berhasil diperbarui'
+    })
+
+@csrf_exempt
+@require_POST
+def api_delete_review(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+
+    venue_id = request.POST.get('venue_id')
+
+    if not venue_id:
+        return JsonResponse({'success': False, 'message': 'Venue ID wajib'}, status=400)
+
+    try:
+        review = Review.objects.get(
+            user=request.user,
+            venue_id=venue_id
+        )
+    except Review.DoesNotExist:
+        return JsonResponse(
+            {'success': False, 'message': 'Review tidak ditemukan'},
+            status=404
+        )
+
+    review.delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Review berhasil dihapus'
+    })
