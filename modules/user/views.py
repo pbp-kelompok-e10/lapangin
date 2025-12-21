@@ -227,3 +227,89 @@ def user_toggle_status(request, user_id):
         'status': 'error',
         'message': 'Invalid request method'
     }, status=400)
+
+#profile
+def get_profile(request):
+    """Get current logged-in user's profile - RETURNS JSON"""
+    try:
+        user = request.user
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        
+        data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email or '',
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'is_active': user.is_active,
+            'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+            'last_login': user.last_login.isoformat() if user.last_login else None,
+            'profile': {
+                'full_name': profile.full_name or '',
+                'phone': profile.phone or '',
+                'address': profile.address or '',
+                'is_active': profile.is_active,
+                'updated_at': profile.updated_at.isoformat() if profile.updated_at else None,
+            }
+        }
+        
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@login_required
+@csrf_exempt
+def update_profile(request):
+    """Update current logged-in user's profile"""
+    if request.method == 'POST':
+        try:
+            user = request.user
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            
+            # Get data from request
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+            
+            # Update user email if provided
+            email = data.get('email', '').strip()
+            if email:
+                user.email = email
+                user.save()
+            
+            # Update profile fields
+            full_name = data.get('full_name', '').strip()
+            phone = data.get('phone', '').strip()
+            address = data.get('address', '').strip()
+            
+            if full_name:
+                profile.full_name = full_name
+                # Split name for first_name and last_name
+                name_parts = full_name.split(maxsplit=1)
+                user.first_name = name_parts[0] if name_parts else ''
+                user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+                user.save()
+            
+            profile.phone = phone
+            profile.address = address
+            profile.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=400)
