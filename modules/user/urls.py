@@ -13,7 +13,14 @@ urlpatterns = [
     path('toggle-status/<int:user_id>/', views.user_toggle_status, name='user_toggle_status'),
     
     # ========== API VIEWS (Return JSON for Flutter) ==========
+    # User List
     path('api/list/', views.user_list_api, name='user_list_api'),
+    
+    # User CRUD Operations
+    path('api/create/', views.user_create_api, name='user_create_api'),
+    path('api/edit/<int:user_id>/', views.user_update_api, name='user_update_api'),
+    path('api/delete/<int:user_id>/', views.user_delete_api, name='user_delete_api'),
+    path('api/toggle-status/<int:user_id>/', views.user_toggle_status_api, name='user_toggle_status_api'),
     
     # Profile API (GET current user's profile & UPDATE current user's profile)
     path('api/profile/', views.get_profile, name='get_profile'),
