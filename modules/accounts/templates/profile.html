@@ -37,7 +37,7 @@
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Nama Lengkap</label>
-                            <p class="text-gray-800 font-medium">{{ profile.full_name|default:"-" }}</p>
+                            <p class="text-gray-800 font-medium">{{ profile.full_name|default:user.get_full_name }}</p>              
                         </div>
                         <div>
                             <label class="text-xs font-bold text-[#A1A1A1] uppercase tracking-wider">Username</label>
