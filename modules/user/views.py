@@ -68,23 +68,29 @@ def user_detail(request, user_id):
     
     return render(request, 'user_detail.html', context)
 
+@csrf_exempt
 @login_required
 @user_passes_test(is_admin)
 def user_create(request):
     """Create a new user"""
     if request.method == 'POST':
-        user_form = UserForm(request.POST)
-        profile_form = UserProfileForm(request.POST)
+        if request.content_type == 'application/json':
+            import json
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        user_form = UserForm(data)
+        profile_form = UserProfileForm(data)
         
         if user_form.is_valid() and profile_form.is_valid():
-            # Create user
             user = user_form.save(commit=False)
-            password = user_form.cleaned_data.get('password')
+            
+            password = data.get('password')
             if password:
                 user.set_password(password)
             user.save()
             
-            # Create profile
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.save()
@@ -95,11 +101,7 @@ def user_create(request):
                 'redirect_url': '/user/list/'
             })
         else:
-            errors = {}
-            if user_form.errors:
-                errors.update(user_form.errors)
-            if profile_form.errors:
-                errors.update(profile_form.errors)
+            errors = {**user_form.errors, **profile_form.errors}
             
             return JsonResponse({
                 'status': 'error',
