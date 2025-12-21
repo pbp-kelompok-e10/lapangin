@@ -33,6 +33,8 @@ class Venue(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
     thumbnail = models.TextField(default='', blank=True)
     description = models.TextField(default='', blank=True)
+    facilities = models.TextField(default='', blank=True)
+    rules = models.TextField(default='', blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=0.0)
     

@@ -17,8 +17,10 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 lg:px-6 pb-8"> {# Padding responsif #}
-        <div id="heroImageContainer" class="w-full h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden bg-gray-200 "> {# Tinggi responsif #}
-            <img src="{% static 'img/placeholder.png' %}" alt="Loading Stadion Image..." class="w-full h-full object-cover" id="heroImage">
+        <div id="heroImageContainer" class="w-full h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden bg-gray-200">
+            <!-- Skeleton for hero image -->
+            <div id="heroSkeleton" class="w-full h-full bg-gray-300 animate-pulse"></div>
+            <img src="" alt="" class="w-full h-full object-cover hidden" id="heroImage">
         </div>
     </div>
 
@@ -26,9 +28,18 @@
         <div class="flex flex-col lg:grid lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-2 order-2 lg:order-none"> {# Urutan 2 di mobile, reset di lg #}
-                <div class="mb-8" id="venueInfo">
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3" id="stadiumName">[Nama Stadion]</h1> {# Font responsif #}
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4"> {# flex-col di mobile kecil #}
+                <!-- Skeleton for venue info -->
+                <div class="mb-8" id="venueInfoSkeleton">
+                    <div class="h-10 bg-gray-300 rounded-lg w-3/4 mb-3 animate-pulse"></div>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <div class="h-6 bg-gray-300 rounded w-20 animate-pulse"></div>
+                        <div class="h-6 bg-gray-300 rounded w-40 animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- Actual venue info (hidden initially) -->
+                <div class="mb-8 hidden" id="venueInfo">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3" id="stadiumName"></h1>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div class="flex items-center gap-1">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 2L15.09 8.26L22 9.27L17.73 14.09L18.73 21L12 17.27L5.27 21L6.27 14.09L2 9.27L8.91 8.26L12 2Z" fill="#FFCC00"/>
@@ -36,55 +47,108 @@
                             <span class="font-semibold text-gray-900" id="rating">-.--</span>
                         </div>
                         <div class="flex items-center gap-1 text-gray-600" id="location">
-                            <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0"> {# Tambah flex-shrink-0 #}
+                            <svg width="21" height="26" viewBox="0 0 21 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
                                 <path d="M20 10.6001C20 16.5918 13.4224 22.8319 11.2137 24.7591C11.0079 24.9155 10.7574 25 10.5 25C10.2426 25 9.99208 24.9155 9.78631 24.7591C7.57756 22.8319 1 16.5918 1 10.6001C1 8.05401 2.00089 5.61218 3.78249 3.81181C5.56408 2.01144 7.98044 1 10.5 1C13.0196 1 15.4359 2.01144 17.2175 3.81181C18.9991 5.61218 20 8.05401 20 10.6001Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M10.5 14.2002C12.4675 14.2002 14.0625 12.5884 14.0625 10.6001C14.0625 8.61187 12.4675 7.00007 10.5 7.00007C8.53249 7.00007 6.9375 8.61187 6.9375 10.6001C6.9375 12.5884 8.53249 14.2002 10.5 14.2002Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span id="cityCountry">[Kota], [Negara]</span>
+                            <span id="cityCountry"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-8">
+                <!-- Skeleton for description -->
+                <div class="mb-8" id="descriptionSkeleton">
+                    <div class="h-7 bg-gray-300 rounded w-48 mb-3 animate-pulse"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-full animate-pulse"></div>
+                        <div class="h-4 bg-gray-300 rounded w-full animate-pulse"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- Actual description (hidden initially) -->
+                <div class="mb-8 hidden" id="descriptionSection">
                     <h2 class="text-xl font-bold text-gray-900 mb-3">Deskripsi Stadion</h2>
-                    <p class="text-gray-700 leading-relaxed" id="description">Loading...</p>
+                    <p class="text-gray-700 leading-relaxed" id="description"></p>
                 </div>
 
-                <div class="mb-8">
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4"> {# flex-col di mobile #}
+                <!-- Skeleton for reviews -->
+                <div class="mb-8" id="reviewsSkeleton">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
+                        <div class="h-7 bg-gray-300 rounded w-24 animate-pulse"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-gray-100 rounded-lg p-4 animate-pulse">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                                <div class="h-4 bg-gray-300 rounded w-32"></div>
+                            </div>
+                            <div class="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                            <div class="h-4 bg-gray-300 rounded w-2/3"></div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-4 animate-pulse">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                                <div class="h-4 bg-gray-300 rounded w-28"></div>
+                            </div>
+                            <div class="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actual reviews section (hidden initially) -->
+                <div class="mb-8 hidden" id="reviewsSection">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
                         <h2 class="text-xl font-bold text-gray-900">Ulasan</h2>
                         {% if user.is_authenticated %}
-                        <button id="open-review-modal-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition w-full sm:w-auto"> {# w-full di mobile #}
+                        <button id="open-review-modal-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition w-full sm:w-auto">
                             Berikan Ulasan
                         </button>
                         {% endif %}
                     </div>
-                    <div class="space-y-4" id="reviews">
-                        <p class="text-gray-500">Memuat ulasan...</p>
-                    </div>
+                    <div class="space-y-4" id="reviews"></div>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 w-full order-1 lg:order-none lg:sticky lg:top-28 self-start"> {# Urutan 1 di mobile, sticky di lg #}
-                <div class="bg-white border border-gray-200 rounded-xl p-6">
+            <div class="lg:col-span-1 w-full order-1 lg:order-none lg:sticky lg:top-28 self-start">
+                <!-- Skeleton for sidebar -->
+                <div id="sidebarSkeleton" class="bg-white border border-gray-200 rounded-xl p-6">
+                    <div class="mb-6">
+                        <div class="h-4 bg-gray-300 rounded w-20 mb-2 animate-pulse"></div>
+                        <div class="h-10 bg-gray-300 rounded w-40 mb-4 animate-pulse"></div>
+                        <div class="h-12 bg-gray-300 rounded-lg w-full animate-pulse"></div>
+                    </div>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <div class="h-5 bg-gray-300 rounded w-32 mb-3 animate-pulse"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                            <div class="h-4 bg-gray-300 rounded w-2/3 animate-pulse"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="h-5 bg-gray-300 rounded w-28 mb-3 animate-pulse"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                            <div class="h-4 bg-gray-300 rounded w-2/3 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actual sidebar (hidden initially) -->
+                <div id="sidebarContent" class="bg-white border border-gray-200 rounded-xl p-6 hidden">
                     <div class="mb-6" id="priceSection">
                         <p class="text-gray-600 text-sm mb-2">Mulai dari</p>
-                        <h3 class="text-3xl font-bold text-blue-500 mb-4" id="price">Rp -.---</h3>
+                        <h3 class="text-3xl font-bold text-blue-500 mb-4" id="price"></h3>
                         <a href="#" id="rentButton" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 text-center block">Sewa</a>
                     </div>
 
                     <div class="mb-6 pb-6 border-b border-gray-200">
                         <h4 class="font-bold text-gray-900 mb-3">Fasilitas Venue</h4>
-                        <ul class="space-y-2 text-sm text-gray-700" id="facilities">
-                            List Fasilitas belum tersedia
-                        </ul>
+                        <ul class="space-y-2 text-sm text-gray-700" id="facilities"></ul>
                     </div>
 
                     <div>
                         <h4 class="font-bold text-gray-900 mb-3">Aturan Venue</h4>
-                        <ul class="space-y-2 text-sm text-gray-700" id="rules">
-                            Aturan belum tersedia
-                        </ul>
+                        <ul class="space-y-2 text-sm text-gray-700" id="rules"></ul>
                     </div>
                 </div>
             </div>
@@ -281,9 +345,36 @@
     const descriptionEl = document.getElementById('description');
     const priceEl = document.getElementById('price');
     const heroImageEl = document.getElementById('heroImage');
+    const heroSkeleton = document.getElementById('heroSkeleton');
     const reviewsContainer = document.getElementById('reviews');
     const facilitiesEl = document.getElementById('facilities');
     const rulesEl = document.getElementById('rules');
+
+    // Skeleton elements
+    const venueInfoSkeleton = document.getElementById('venueInfoSkeleton');
+    const venueInfo = document.getElementById('venueInfo');
+    const descriptionSkeleton = document.getElementById('descriptionSkeleton');
+    const descriptionSection = document.getElementById('descriptionSection');
+    const reviewsSkeleton = document.getElementById('reviewsSkeleton');
+    const reviewsSection = document.getElementById('reviewsSection');
+    const sidebarSkeleton = document.getElementById('sidebarSkeleton');
+    const sidebarContent = document.getElementById('sidebarContent');
+
+    function hideSkeletons() {
+        // Hide all skeletons
+        if (heroSkeleton) heroSkeleton.classList.add('hidden');
+        if (venueInfoSkeleton) venueInfoSkeleton.classList.add('hidden');
+        if (descriptionSkeleton) descriptionSkeleton.classList.add('hidden');
+        if (reviewsSkeleton) reviewsSkeleton.classList.add('hidden');
+        if (sidebarSkeleton) sidebarSkeleton.classList.add('hidden');
+
+        // Show actual content
+        if (heroImageEl) heroImageEl.classList.remove('hidden');
+        if (venueInfo) venueInfo.classList.remove('hidden');
+        if (descriptionSection) descriptionSection.classList.remove('hidden');
+        if (reviewsSection) reviewsSection.classList.remove('hidden');
+        if (sidebarContent) sidebarContent.classList.remove('hidden');
+    }
 
     async function fetchVenueDetails() {
         try {
@@ -310,6 +401,25 @@
                 heroImageEl.src = venue.thumbnail;
                 heroImageEl.alt = venue.stadium;
 
+                // Render Facilities
+                if (venue.facilities && venue.facilities.trim() !== '') {
+                    const facilitiesList = venue.facilities.split('\n').filter(item => item.trim() !== '');
+                    facilitiesEl.innerHTML = facilitiesList.map(item => `<li class="flex items-start gap-2"><span class="text-green-500">✓</span> ${item.trim()}</li>`).join('');
+                } else {
+                    facilitiesEl.innerHTML = '<li class="text-gray-500">Fasilitas belum tersedia</li>';
+                }
+
+                // Render Rules
+                if (venue.rules && venue.rules.trim() !== '') {
+                    const rulesList = venue.rules.split('\n').filter(item => item.trim() !== '');
+                    rulesEl.innerHTML = rulesList.map(item => `<li class="flex items-start gap-2"><span class="text-red-500">•</span> ${item.trim()}</li>`).join('');
+                } else {
+                    rulesEl.innerHTML = '<li class="text-gray-500">Aturan belum tersedia</li>';
+                }
+
+                // Hide skeletons and show content
+                hideSkeletons();
+
                 loadVenueReviews();
 
             } else {
@@ -317,6 +427,9 @@
             }
         } catch (error) {
             console.error('Error fetching venue details:', error);
+
+            // Hide skeletons even on error
+            hideSkeletons();
 
             if (stadiumNameEl) stadiumNameEl.textContent = "Error";
             if (descriptionEl) descriptionEl.textContent = "Gagal memuat detail venue.";

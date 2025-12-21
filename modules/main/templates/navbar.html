@@ -54,6 +54,7 @@
 <script>
     const LOGIN_LINK = "{% url 'accounts:login' %}";
     const REGISTER_LINK = "{% url 'accounts:register' %}";
+    const PROFILE_LINK = "{% url 'accounts:profile' %}";
     const LOGOUT_LINK = "{% url 'accounts:logout' %}"
     const PAGE_DATA_API_ENDPOINT = "{% url 'accounts:get_page_data' %}";
     const FAQ_LINK = "{% url 'faq:faq_list' %}";
@@ -96,6 +97,12 @@
                     </button>
                     
                     <div id="user-menu-dropdown" class="hidden absolute right-0 mt-10 w-48 bg-white rounded-lg shadow-lg border border-gray-300 z-10">
+                        <a href="${PROFILE_LINK}" class="flex items-center border-b border-gray-300 gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>Profil Saya</span>
+                        </a>
                         <a href="${BOOKING_HISTORY_LINK}" class="flex items-center border-b border-gray-300 gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3.00003H4C3.44772 3.00003 3 3.44775 3 4.00003V11C3 11.5523 3.44772 12 4 12H9C9.55228 12 10 11.5523 10 11V4.00003C10 3.44775 9.55228 3.00003 9 3.00003Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 3.00003H15C14.4477 3.00003 14 3.44775 14 4.00003V7.00003C14 7.55232 14.4477 8.00003 15 8.00003H20C20.5523 8.00003 21 7.55232 21 7.00003V4.00003C21 3.44775 20.5523 3.00003 20 3.00003Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12H15C14.4477 12 14 12.4477 14 13V20C14 20.5523 14.4477 21 15 21H20C20.5523 21 21 20.5523 21 20V13C21 12.4477 20.5523 12 20 12Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16H4C3.44772 16 3 16.4477 3 17V20C3 20.5523 3.44772 21 4 21H9C9.55228 21 10 20.5523 10 20V17C10 16.4477 9.55228 16 9 16Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             <span>Dashboard</span>
@@ -116,6 +123,7 @@
                     <div class="font-medium text-[#737373]">Welcome, ${username}</div>
                 </div>
                 <div class="mt-3 px-2 space-y-1">
+                    <a href="${PROFILE_LINK}" class="block px-3 py-2 rounded-md text-base font-medium text-[#737373] hover:text-white hover:bg-blue-500">Profil Saya</a>
                     <a href="${BOOKING_HISTORY_LINK}" class="block px-3 py-2 rounded-md text-base font-medium text-[#737373] hover:text-white hover:bg-blue-500">Dashboard</a>
                     ${isAdmin ? `<a href="${USER_LIST_LINK}" class="block px-3 py-2 rounded-md text-base font-medium text-[#737373] hover:text-white hover:bg-blue-500">User Management</a>` : ''}
                     <a href="${LOGOUT_LINK}" class="logout-btn block px-3 py-2 rounded-md text-base font-medium text-[#E7000B] hover:bg-red-50">Keluar</a>
@@ -149,9 +157,9 @@
                 e.preventDefault();
                 userMenuDropDown.classList.toggle("hidden");
                 userMenuTrigger.querySelector("svg").classList.toggle("rotate-180");
-                userMenuTrigger.classList.toggle("text-[#737373]")
-                userMenuTrigger.classList.toggle("hover:text-[#4B4B4B]")
-                userMenuTrigger.classList.toggle("text-[#0062FF]")
+                userMenuTrigger.classList.toggle("text-[#737373]");
+                userMenuTrigger.classList.toggle("hover:text-[#4B4B4B]");
+                userMenuTrigger.classList.toggle("text-[#0062FF]");
 
                 if (currentColor == originalColor) {
                     arrowSvg.setAttribute("stroke", clickedColor);
@@ -168,11 +176,9 @@
                     const response = await fetch(LOGOUT_LINK, { method: 'POST', headers: { 'Accepts': 'application/json' }});
                     if (response.ok) {
                         showToast("You have been logged out.", "", "success");
-                        console.log("Logout successful");
                         setTimeout(() => { window.location.href = LOGIN_LINK; }, 750);
                     } else {
                         showToast('Logout failed, please try again', "", "error");
-                        console.error("Logout failed");
                     }
                 } catch (error) {
                     console.error("Error during logout: ", error);

@@ -9,6 +9,9 @@ from django.contrib.auth.decorators import login_required
 import json
 from .forms import CustomUserCreationForm
 import datetime
+from modules.booking.models import Booking
+from modules.user.models import UserProfile
+from datetime import date
 
 def register(request):
     form = CustomUserCreationForm()
@@ -66,15 +69,50 @@ def logout_user(request):
 
 def get_page_data(request):
     if request.user.is_authenticated:
+        # Get or create UserProfile
+        profile, created = UserProfile.objects.get_or_create(
+            user=request.user,
+            defaults={'full_name': f"{request.user.first_name} {request.user.last_name}".strip()}
+        )
         return JsonResponse({
             'is_authenticated': True,
             'user_id': request.user.id,
             'username': request.user.username,
-            'name': 'Prasetya Surya Syahputra',
-            'npm': '2406398381',
-            'class': 'PBP E',
+            'full_name': profile.full_name or request.user.get_full_name() or request.user.username,
+            'phone': profile.phone,
+            'address': profile.address,
             'is_staff': request.user.is_staff,
             'is_superuser': request.user.is_superuser,
         })
     else:
         return JsonResponse({'is_authenticated': False})
+
+@login_required(login_url='/accounts/login/')
+def profile_page(request):
+    # Get or create UserProfile
+    profile, created = UserProfile.objects.get_or_create(
+        user=request.user,
+        defaults={'full_name': f"{request.user.first_name} {request.user.last_name}".strip()}
+    )
+    
+    user_bookings = Booking.objects.filter(user=request.user).select_related('venue').order_by('-booking_date')
+    bookings_data = []
+    for booking in user_bookings:
+        can_modify = booking.booking_date >= date.today()
+        bookings_data.append({
+            'booking_id': booking.id,
+            'venue_id': booking.venue.id,
+            'venue_name': booking.venue.name,
+            'venue_thumbnail': booking.venue.thumbnail if booking.venue.thumbnail else '/static/img/default-thumbnail.jpg',
+            'booking_date': booking.booking_date.isoformat(),
+            'created_at': booking.created_at.isoformat(),
+            'can_modify': can_modify,
+            'url_detail': reverse('venue:venue_detail', args=[booking.venue.id]),
+        })
+
+    context = {
+        'user': request.user,
+        'profile': profile,
+        'bookings': bookings_data
+    }
+    return render(request, 'profile.html', context)

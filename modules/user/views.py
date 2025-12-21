@@ -117,6 +117,7 @@ def user_create(request):
     
     return render(request, 'user_form.html', context)
 
+@csrf_exempt
 @login_required
 @user_passes_test(is_admin)
 def user_edit(request, user_id):
@@ -125,35 +126,30 @@ def user_edit(request, user_id):
     profile, created = UserProfile.objects.get_or_create(user=user)
     
     if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=user)
-        profile_form = UserProfileForm(request.POST, instance=profile)
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        user_form = UserForm(data, instance=user)
+        profile_form = UserProfileForm(data, instance=profile)
         
         if user_form.is_valid() and profile_form.is_valid():
-            # Update user
             user = user_form.save(commit=False)
-            password = user_form.cleaned_data.get('password')
+            password = data.get('password')
             if password:
                 user.set_password(password)
             user.save()
-            
-            # Update profile
             profile_form.save()
             
             return JsonResponse({
                 'status': 'success',
-                'message': 'User updated successfully!',
-                'redirect_url': f'/user/detail/{user_id}/'
+                'message': 'User updated successfully!'
             })
         else:
-            errors = {}
-            if user_form.errors:
-                errors.update(user_form.errors)
-            if profile_form.errors:
-                errors.update(profile_form.errors)
-            
             return JsonResponse({
                 'status': 'error',
-                'errors': errors
+                'errors': {**user_form.errors, **profile_form.errors}
             }, status=400)
     
     user_form = UserForm(instance=user)

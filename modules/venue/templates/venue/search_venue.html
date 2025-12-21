@@ -97,153 +97,180 @@
         <button id="moreBtn" class="mt-8 bg-[#0062FF] hover:bg-blue-700 text-white font-medium font-poppins rounded-lg px-6 py-3 transition" style="display: none;">More</button>
     </div>
 
-    <div id="addVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
-        <div class="relative w-full max-w-3xl mx-auto p-6 sm:p-8">
-            <div class="p-6 sm:p-8 bg-white rounded-lg">
-                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+    <div id="addVenueModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
+        <div class="relative w-full max-w-5xl mx-auto p-4"> <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"> <div class="flex justify-between items-center p-6 border-b bg-white">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Tambah Venue Baru</h1>
-                        <p class="text-gray-600">Masukkan detail stadion yang ingin disewakan.</p>
+                        <p class="text-sm text-gray-600">Lengkapi detail stadion di bawah ini.</p>
                     </div>
-                    <button id="closeAddVenueModalBtn" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button id="closeAddVenueModalBtn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-    
-                <div id="addVenueFormMessages" class="mb-4"></div>
-    
-                <form id="addVenueForm" method="POST" action="{% url 'venue:create_venue' %}" class="space-y-6">
-                    {% csrf_token %}
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Stadion</label>
-                        <input type="text" id="name" name="name" placeholder="Masukkan nama lengkap stadion" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">Kota</label>
-                            <input type="text" id="city" name="city" placeholder="Contoh: Jakarta" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+
+                <div class="p-8 overflow-y-auto custom-scrollbar">
+                    <div id="addVenueFormMessages"></div>
+                    <form id="addVenueForm" method="POST" action="{% url 'venue:create_venue' %}">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Stadion</label>
+                                    <input type="text" name="name" placeholder="Masukkan nama lengkap stadion" required
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kota</label>
+                                        <input type="text" name="city" placeholder="Jakarta" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Negara</label>
+                                        <input type="text" name="country" placeholder="Indonesia" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kapasitas</label>
+                                        <input type="number" name="capacity" placeholder="Contoh: 50000" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa</label>
+                                        <input type="number" name="price" placeholder="Contoh: 4500000" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL Gambar</label>
+                                    <input type="url" name="thumbnail" placeholder="http://..."
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
+                                    <textarea name="description" rows="3" placeholder="Jelaskan keunggulan venue..."
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fasilitas Venue</label>
+                                    <textarea name="facilities" rows="5" placeholder="Tulis satu per baris, contoh:&#10;Lampu Malam&#10;Loker Pemain"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                    <p class="mt-1.5 text-xs text-blue-600 font-medium">💡 Tekan Enter untuk baris baru per fasilitas</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Aturan Venue</label>
+                                    <textarea name="rules" rows="5" placeholder="Tulis satu per baris, contoh:&#10;Dilarang Merokok&#10;Wajib Sepatu Olahraga"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                    <p class="mt-1.5 text-xs text-blue-600 font-medium">💡 Tekan Enter untuk baris baru per aturan</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="country" class="block text-sm font-medium text-gray-700 mb-2">Negara</label>
-                            <input type="text" id="country" name="country" placeholder="Contoh: Indonesia" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-    
-                    <div>
-                        <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">Kapasitas Kursi</label>
-                        <input type="number" id="capacity" name="capacity" placeholder="Masukkan jumlah kursi" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Harga Sewa</label>
-                        <input type="number" id="price" name="price" placeholder="Contoh: 4500000" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div>
-                        <label for="thumbnail" class="block text-sm font-medium text-gray-700 mb-2">URL Gambar/Thumbnail</label>
-                        <input type="url" id="thumbnail" name="thumbnail" placeholder="Contoh: http://example.com/image.jpg"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                        <textarea id="description" name="description" rows="4" placeholder="Jelaskan fasilitas dan keunggulan venue"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-    
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <button type="button" id="cancelAddVenueBtn" class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">
-                            Batal
-                        </button>
-                        <button type="submit" class="order-1 sm:order-2 flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">
-                            Tambahkan Venue
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
+                <div class="p-6 border-t bg-gray-50 flex flex-col sm:flex-row gap-4 justify-end">
+                    <button type="button" id="cancelAddVenueBtn" class="px-8 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition-all order-2 sm:order-1">
+                        Batal
+                    </button>
+                    <button type="submit" form="addVenueForm" class="px-8 py-3 bg-[#0062FF] text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all order-1 sm:order-2">
+                        Tambahkan Venue
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
-    <div id="editVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
-        <div class="relative w-full max-w-3xl mx-auto p-6 sm:p-8">
-            <div class="p-6 sm:p-8 bg-white rounded-lg shadow-xl border border-gray-200 m-4">
-                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+    <div id="editVenueModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
+        <div class="relative w-full max-w-5xl mx-auto p-4">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center p-6 border-b bg-white">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Edit Venue</h1>
-                        <p class="text-gray-600">Perbarui detail stadion.</p>
+                        <p class="text-sm text-gray-600">Perbarui informasi stadion.</p>
                     </div>
-                    <button id="closeEditVenueModalBtn" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button id="closeEditVenueModalBtn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-    
-                <div id="editVenueFormMessages" class="mb-4"></div>
-    
-                <form id="editVenueForm" method="POST" action="" class="space-y-6">
-                    {% csrf_token %}
-                    
-                    <div>
-                        <label for="edit_stadium" class="block text-sm font-medium text-gray-700 mb-2">Nama Stadion</label>
-                        <input type="text" id="edit_stadium" name="name" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="edit_city" class="block text-sm font-medium text-gray-700 mb-2">Kota</label>
-                            <input type="text" id="edit_city" name="city" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+
+                <div class="p-8 overflow-y-auto custom-scrollbar">
+                    <div id="editVenueFormMessages"></div>
+                    <form id="editVenueForm" method="POST" action="">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Stadion</label>
+                                    <input type="text" id="edit_stadium" name="name" required
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kota</label>
+                                        <input type="text" id="edit_city" name="city" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Negara</label>
+                                        <input type="text" id="edit_country" name="country" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kapasitas</label>
+                                        <input type="number" id="edit_capacity" name="capacity" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa</label>
+                                        <input type="number" id="edit_price" name="price" required
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL Gambar</label>
+                                    <input type="url" id="edit_thumbnail" name="thumbnail"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
+                                    <textarea id="edit_description" name="description" rows="3"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fasilitas Venue</label>
+                                    <textarea id="edit_facilities" name="facilities" rows="5"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Aturan Venue</label>
+                                    <textarea id="edit_rules" name="rules" rows="5"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="edit_country" class="block text-sm font-medium text-gray-700 mb-2">Negara</label>
-                            <input type="text" id="edit_country" name="country" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-    
-                    <div>
-                        <label for="edit_capacity" class="block text-sm font-medium text-gray-700 mb-2">Kapasitas Kursi</label>
-                        <input type="number" id="edit_capacity" name="capacity" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div>
-                        <label for="edit_price" class="block text-sm font-medium text-gray-700 mb-2">Harga Sewa</label>
-                        <input type="number" id="edit_price" name="price" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-    
-                    <div>
-                        <label for="edit_thumbnail" class="block text-sm font-medium text-gray-700 mb-2">URL Gambar/Thumbnail</label>
-                        <input type="url" id="edit_thumbnail" name="thumbnail"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                        <textarea id="edit_description" name="description" rows="4"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-    
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <button type="button" id="cancelEditVenueBtn" class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">
-                            Batal
-                        </button>
-                        <button type="submit" class="order-1 sm:order-2 flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">
-                            Perbarui Venue
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
+                <div class="p-6 border-t bg-gray-50 flex flex-col sm:flex-row gap-4 justify-end">
+                    <button type="button" id="cancelEditVenueBtn" class="px-8 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition-all order-2 sm:order-1">
+                        Batal
+                    </button>
+                    <button type="submit" form="editVenueForm" class="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-100 transition-all order-1 sm:order-2">
+                        Perbarui Venue
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
     <div id="deleteVenueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
         <div class="relative bg-white w-full max-w-lg mx-auto rounded-lg shadow-xl border border-gray-200 m-4">
             <div class="p-6 sm:p-8">
@@ -284,6 +311,7 @@
     const is_admin = '{{ can_add_venue }}'
     const csrftoken = '{{ csrf_token }}';
     const searchApiUrl = "{% url 'venue:search_venues_api' %}";
+    const placeholderUrl = "{% static 'img/placeholder.png' %}";
 
     const locations = JSON.parse('{{ locations_json|safe }}' || '[]');
     
@@ -325,6 +353,9 @@
             const priceNumber = parseFloat(venue.price);
             const price = priceNumber.toLocaleString('id-ID', { minimumFractionDigits: 0 });
             const card = document.createElement('a');
+            const venueImage = (venue.thumbnail && venue.thumbnail.trim() !== "") 
+                            ? venue.thumbnail
+                            : placeholderUrl;
             card.href = venue.url_detail;
 
             card.className = `
@@ -334,10 +365,11 @@
                 font-poppins no-underline text-inherit cursor-pointer
                 transition-all duration-200 hover:shadow-lg hover:-translate-y-1
             `;
+            console.log(venueImage);
             
             card.innerHTML = `
                 <div class="self-stretch h-48 relative overflow-hidden rounded-xl">
-                    <img src="${venue.thumbnail}" alt="${venue.stadium}" class="w-full h-full object-cover">
+                    <img src="${venueImage}" alt="${venue.stadium}" class="w-full h-full object-cover" onerror="this.src='${placeholderUrl}'">
                 </div>
 
                 <div class="self-stretch justify-between flex items-center">
@@ -650,6 +682,8 @@
             editVenueForm.elements.price.value = data.price;
             editVenueForm.elements.thumbnail.value = data.thumbnail;
             editVenueForm.elements.description.value = data.description;
+            editVenueForm.elements.facilities.value = data.facilities || '';
+            editVenueForm.elements.rules.value = data.rules || '';
 
             editVenueForm.action = apiUrl;
 
