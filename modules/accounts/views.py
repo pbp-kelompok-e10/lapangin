@@ -12,6 +12,8 @@ import datetime
 from modules.booking.models import Booking
 from modules.user.models import UserProfile
 from datetime import date
+from django.views.decorators.http import require_POST
+from modules.user.forms import UserProfileForm
 
 def register(request):
     form = CustomUserCreationForm()
@@ -116,3 +118,18 @@ def profile_page(request):
         'bookings': bookings_data
     }
     return render(request, 'profile.html', context)
+
+@csrf_exempt
+@require_POST
+@login_required
+def edit_profile(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    form = UserProfileForm(request.POST, instance=profile)
+    full_name = request.POST.get('full_name', '').strip()
+    if full_name:
+        profile.full_name = full_name
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'status': 'success', 'message': 'Profil berhasil diupdate.'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Data tidak valid.'})

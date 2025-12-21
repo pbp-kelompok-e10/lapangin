@@ -201,9 +201,7 @@ document.getElementById('userForm').addEventListener('submit', async function(e)
         
         if (data.status === 'success') {
             showToast('Success', data.message, 'success');
-            setTimeout(() => {
-                window.location.href = data.redirect_url;
-            }, 1000);
+
         } else {
             // Show errors
             let errorMsg = 'Form validation failed. ';
